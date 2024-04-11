@@ -2,38 +2,40 @@ package model;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public class Epic extends Task {
-    private static Status status = Status.NEW;
-    Set<SubTask> subTasks;
+    private final Set<SubTask> subTasks;
 
     public Epic(int id, String name, String description) {
-        super(id, name, description, status);
+        super(id, name, description);
         this.subTasks = new HashSet<>();
     }
 
-    public Set <SubTask> getSubTasks() {
+    public Set<SubTask> getSubTasks() {
         return subTasks;
     }
 
-    @Override
-    public Status getStatus() {
+    public void updateEpicStatus() {
+        boolean allDone = true;
+        boolean allNew = true;
         if (subTasks.isEmpty()) {
-            return Status.NEW;
+            status = Status.NEW;
         }
-        Set<Status> statuses = subTasks.stream()
-                .map(Task::getStatus)
-                .collect(Collectors.toSet());
-        if (statuses.size() != 1) {
-            return Status.IN_PROGRESS;
+        for (SubTask subTask : subTasks) {
+            if (subTask.getStatus() != Status.DONE) {
+                allDone = false;
+            }
+            if (subTask.getStatus() != Status.NEW) {
+                allNew = false;
+            }
+        }
+        if (allDone) {
+            status = Status.DONE;
+        } else if (allNew) {
+            status = Status.NEW;
         } else {
-            return statuses.iterator().next();
+            status = Status.IN_PROGRESS;
         }
-    }
-
-    public  void updateEpicStatus() {
-        status = getStatus();
 
     }
 }

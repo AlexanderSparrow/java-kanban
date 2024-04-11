@@ -1,9 +1,7 @@
 package model;
 
-import java.util.Objects;
-
 public class SubTask extends Task{
-    Epic epic;
+    private final Epic epic;
 
     public SubTask(int id, String name, String description, Status status, Epic epic) {
         super(id, name, description, status);
@@ -14,10 +12,6 @@ public class SubTask extends Task{
 
     public Epic getEpic() {
         return epic;
-    }
-
-    public void setEpic(Epic epic) {
-        this.epic = epic;
     }
 }
 

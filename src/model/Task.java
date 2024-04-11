@@ -3,9 +3,9 @@ package model;
 import java.util.Objects;
 
 public class Task {
-    private int id;
-    private String name;
-    private String description;
+    protected int id;
+    protected String name;
+    protected String description;
     protected Status status;
 
     public Task(int id, String name, String description, Status status) {
@@ -26,8 +26,16 @@ public class Task {
         return id;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public String getName() {
         return name;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public String getDescription() {
@@ -67,6 +75,7 @@ public class Task {
     public int hashCode() {
         return Objects.hashCode(id);
     }
+
 
 
 }
