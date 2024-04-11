@@ -36,7 +36,7 @@ public class TaskService {
     public Set<SubTask> getAllSubTasksByEpic(int id) {
         if (!epics.containsKey(id)) {
             System.out.printf("Эпик с номером %d отсутствует.", id);
-            return null;
+            return new HashSet<>();
         }
         return epics.get(id).getSubTasks();
     }
