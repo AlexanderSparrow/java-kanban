@@ -25,7 +25,8 @@ public class TaskService {
     }
 
     public List<SubTask> getSubTasks() {
-        return new ArrayList<>(subTasks.values());    }
+        return new ArrayList<>(subTasks.values());
+    }
 
     public List<Epic> getEpics() {
         return new ArrayList<>(epics.values());
@@ -35,9 +36,11 @@ public class TaskService {
     public Set<SubTask> getAllSubTasksByEpic(int id) {
         if (!epics.containsKey(id)) {
             System.out.printf("Эпик с номером %d отсутствует.", id);
+            return null;
         }
         return epics.get(id).getSubTasks();
-        }
+    }
+
 
     // Создание задач, подзадач, эпиков
     public void addTask(Task task) {
@@ -51,12 +54,13 @@ public class TaskService {
             System.out.println("Эпик отсутствует в хранилище. Ничего добавлять не будем, нам нельзя :-).");
             return;
         }
-            int id = getNextCounter();
-            subTask.setId(id);
-            subTasks.put(id, subTask);
-            subTask.getEpic().getSubTasks().add(subTask);
-            subTask.getEpic().updateEpicStatus();
+        int id = getNextCounter();
+        subTask.setId(id);
+        subTasks.put(id, subTask);
+        subTask.getEpic().getSubTasks().add(subTask);
+        subTask.getEpic().updateEpicStatus();
     }
+
     public void addEpic(Epic epic) {
         int id = getNextCounter();
         epic.setId(id);
@@ -65,10 +69,6 @@ public class TaskService {
 
     //Получение задач, подзадач, эпиков по ID
     public Task getTaskById(int id) {
-        if (!tasks.containsKey(id)) {
-            System.out.println("such task not found");
-            return null;
-        }
         return tasks.get(id);
     }
 
@@ -140,9 +140,9 @@ public class TaskService {
             final Epic savedEpic = epics.get(epic.getId());
             savedEpic.setName(epic.getName());
             savedEpic.setDescription(epic.getDescription());
-        }  else {
-        System.out.println("Такого эпика не существует");
-    }
+        } else {
+            System.out.println("Такого эпика не существует");
+        }
     }
 
     // Удаление всех задач, подзадач, эпиков
