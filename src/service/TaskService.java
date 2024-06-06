@@ -1,38 +1,40 @@
 package service;
 
 import model.Epic;
-import model.Status;
 import model.SubTask;
 import model.Task;
 
 import java.util.*;
 
-public class TaskService {
-
-
+public class TaskService implements inMemoryTaskService {
     private final Map<Integer, Task> tasks = new HashMap<>();
     private final Map<Integer, SubTask> subTasks = new HashMap<>();
     private final Map<Integer, Epic> epics = new HashMap<>();
     private int counter = 0;
 
-    private int getNextCounter() {
+    public inMemoryHistoryService historyService = new inMemoryHistoryService();
+
+    int getNextCounter() {
         return ++counter;
     }
-
     //Получение всех задач
+    @Override
     public List<Task> getTasks() {
         return new ArrayList<>(tasks.values());
     }
 
+    @Override
     public List<SubTask> getSubTasks() {
         return new ArrayList<>(subTasks.values());
     }
 
+    @Override
     public List<Epic> getEpics() {
         return new ArrayList<>(epics.values());
     }
 
     //Список всех задач эпика
+    @Override
     public Set<SubTask> getAllSubTasksByEpic(int id) {
         if (!epics.containsKey(id)) {
             System.out.printf("Эпик с номером %d отсутствует.", id);
@@ -43,12 +45,14 @@ public class TaskService {
 
 
     // Создание задач, подзадач, эпиков
+    @Override
     public void addTask(Task task) {
         int id = getNextCounter();
         task.setId(id);
         tasks.put(id, task);
     }
 
+    @Override
     public void addSubTask(SubTask subTask) {
         if (!epics.containsValue(subTask.getEpic())) {
             System.out.println("Эпик отсутствует в хранилище. Ничего добавлять не будем, нам нельзя :-).");
@@ -61,6 +65,7 @@ public class TaskService {
         subTask.getEpic().updateEpicStatus();
     }
 
+    @Override
     public void addEpic(Epic epic) {
         int id = getNextCounter();
         epic.setId(id);
@@ -68,32 +73,40 @@ public class TaskService {
     }
 
     //Получение задач, подзадач, эпиков по ID
+    @Override
     public Task getTaskById(int id) {
+        historyService.addTaskToHistory(tasks.get(id));
         return tasks.get(id);
+
     }
 
+    @Override
     public SubTask getSubTaskById(int id) {
         if (!subTasks.containsKey(id)) {
             System.out.println("such subtask not found");
             return null;
         }
+        historyService.addTaskToHistory(subTasks.get(id));
         return subTasks.get(id);
     }
 
+    @Override
     public Epic getEpicById(int id) {
         if (!epics.containsKey(id)) {
             System.out.println("such epic not found");
             return null;
-
         }
+        historyService.addTaskToHistory(epics.get(id));
         return epics.get(id);
     }
 
     //Удалить задачу по ID
+    @Override
     public void removeTask(int id) {
         tasks.remove(id);
     }
 
+    @Override
     public void removeSubTask(int id) {
         SubTask subTask = subTasks.get(id);
         if (subTask != null) {
@@ -103,6 +116,7 @@ public class TaskService {
         }
     }
 
+    @Override
     public void removeEpic(int id) {
         Epic epic = epics.get(id);
         if (epic != null) {
@@ -115,6 +129,7 @@ public class TaskService {
     }
 
     //Обновление задач
+    @Override
     public void updateTask(Task task) {
         if (tasks.containsKey(task.getId())) {
             tasks.put(task.getId(), task);
@@ -123,6 +138,7 @@ public class TaskService {
         }
     }
 
+    @Override
     public void updateSubTask(SubTask subTask) {
         if (subTasks.containsKey(subTask.getId())) {
             SubTask oldSbTask = subTasks.get(subTask.getId());
@@ -135,6 +151,7 @@ public class TaskService {
         }
     }
 
+    @Override
     public void updateEpic(Epic epic) {
         if (epics.containsKey(epic.getId())) {
             final Epic savedEpic = epics.get(epic.getId());
@@ -146,10 +163,12 @@ public class TaskService {
     }
 
     // Удаление всех задач, подзадач, эпиков
+    @Override
     public void removeAllTasks() {
         tasks.clear();
     }
 
+    @Override
     public void removeAllSubTasks() {
         if (subTasks.isEmpty()) {
             System.out.println("Список подзадач пуст.");
@@ -162,6 +181,7 @@ public class TaskService {
         subTasks.clear();
     }
 
+    @Override
     public void removeAllEpics() {
         if (epics.isEmpty()) {
             System.out.println("Список подзадач пуст.");

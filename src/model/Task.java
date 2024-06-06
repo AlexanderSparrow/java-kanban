@@ -1,5 +1,7 @@
 package model;
 
+import service.TaskService;
+
 import java.util.Objects;
 
 public class Task {
@@ -13,6 +15,13 @@ public class Task {
         this.name = name;
         this.description = description;
         this.status = status;
+    }
+
+    public Task(String name, String description) {
+        this.id = 0;
+        this.name = name;
+        this.description = description;
+        this.status = Status.NEW;
     }
 
     public Task(int id, String name, String description) {

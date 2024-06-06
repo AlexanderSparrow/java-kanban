@@ -2,22 +2,26 @@ import model.Epic;
 import model.Status;
 import model.SubTask;
 import model.Task;
+import service.HistoryService;
+import service.Services;
 import service.TaskService;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
 public class Main {
 
     public static void main(String[] args) {
-        TaskService taskService = new TaskService(); // Создание менеджера задач
+        //TaskService taskService = new TaskService(); // Создание менеджера задач
+        TaskService taskService = Services.getDefault(); // Создание менеджера задач
 
         System.out.println("Добавляем задачи...");// добавление задач
         taskService.addTask(new Task(0, "first task",
                 "write code of final task of 4 sprint", Status.IN_PROGRESS));
         taskService.addTask(new Task(1, "second task",
                 "check the logic of the program", Status.IN_PROGRESS));
-        taskService.addTask(new Task(111, "third task",
+        taskService.addTask(new Task(2, "third task",
                 "submit the third task of the 4th sprint for review", Status.IN_PROGRESS));
 
         taskService.addEpic(new Epic(124, "epic1", "first epic"));
@@ -52,8 +56,15 @@ public class Main {
 
         System.out.println("\nЗадачи по ID:");
         System.out.println(taskService.getTaskById(2));
+        System.out.println(taskService.getTaskById(3));
+        System.out.println(taskService.getEpicById(4));
+        System.out.println(taskService.getSubTaskById(5));
+        System.out.println(taskService.getSubTaskById(6));
+        System.out.println(taskService.getSubTaskById(7));
+        System.out.println(taskService.getSubTaskById(8));
         System.out.println(taskService.getSubTaskById(9));
-        System.out.println(taskService.getEpicById(5));
+        System.out.println(taskService.getSubTaskById(10));
+
 
         System.out.println("\nСписок задач:");
         listOfTasks(taskService);
@@ -104,6 +115,8 @@ public class Main {
 
         removeAllSubTasks(taskService);
         taskService.removeAllEpics();
+        System.out.println("История просмотра задач:");
+        System.out.println(Arrays.toString(taskService.historyService.getTaskHistoryList()));
         System.out.println("Программа завершена");
     }
 
