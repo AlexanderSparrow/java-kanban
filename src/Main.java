@@ -2,7 +2,6 @@ import model.Epic;
 import model.Status;
 import model.SubTask;
 import model.Task;
-import service.HistoryService;
 import service.Services;
 import service.TaskService;
 

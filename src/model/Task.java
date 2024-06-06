@@ -1,7 +1,5 @@
 package model;
 
-import service.TaskService;
-
 import java.util.Objects;
 
 public class Task {

@@ -2,8 +2,6 @@ import model.Task;
 import org.junit.jupiter.api.Test;
 import service.inMemoryHistoryService;
 
-import java.util.List;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 class inMemoryHistoryServiceTest {
