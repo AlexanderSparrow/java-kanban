@@ -6,15 +6,15 @@ import model.Task;
 
 import java.util.*;
 
-public class TaskService implements inMemoryTaskService {
+public class TaskService implements InMemoryTaskService{
     private final Map<Integer, Task> tasks = new HashMap<>();
     private final Map<Integer, SubTask> subTasks = new HashMap<>();
     private final Map<Integer, Epic> epics = new HashMap<>();
     private int counter = 0;
 
-    public inMemoryHistoryService historyService = new inMemoryHistoryService();
+    private final InMemoryHistoryService historyService = (InMemoryHistoryService) Services.getDefaultHistory();
 
-    int getNextCounter() {
+    private int getNextCounter() {
         return ++counter;
     }
     //Получение всех задач
@@ -82,10 +82,6 @@ public class TaskService implements inMemoryTaskService {
 
     @Override
     public SubTask getSubTaskById(int id) {
-        if (!subTasks.containsKey(id)) {
-            System.out.println("such subtask not found");
-            return null;
-        }
         historyService.addTaskToHistory(subTasks.get(id));
         return subTasks.get(id);
     }

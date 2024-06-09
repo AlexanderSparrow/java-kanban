@@ -2,9 +2,11 @@ package service;
 
 import model.Task;
 
+import java.util.List;
+
 public interface HistoryService {
 
-    Task[] getTaskHistoryList();
+    List <Task> getTaskHistoryList();
 
     void addTaskToHistory(Task addedTask);
 

@@ -7,10 +7,7 @@ import model.Task;
 import java.util.List;
 import java.util.Set;
 
-public interface inMemoryTaskService {
-    /*default int getNextCounter() {
-        return ++counter;
-    }*/
+public interface InMemoryTaskService {
 
     //Получение всех задач
     List<Task> getTasks();

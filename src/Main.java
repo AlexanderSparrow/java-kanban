@@ -2,18 +2,17 @@ import model.Epic;
 import model.Status;
 import model.SubTask;
 import model.Task;
+import service.HistoryService;
 import service.Services;
 import service.TaskService;
-
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
 public class Main {
 
     public static void main(String[] args) {
-        //TaskService taskService = new TaskService(); // Создание менеджера задач
         TaskService taskService = Services.getDefault(); // Создание менеджера задач
+        HistoryService historyService = Services.getDefaultHistory(); // Создание менеджера истории
 
         System.out.println("Добавляем задачи...");// добавление задач
         taskService.addTask(new Task(0, "first task",
@@ -115,7 +114,7 @@ public class Main {
         removeAllSubTasks(taskService);
         taskService.removeAllEpics();
         System.out.println("История просмотра задач:");
-        System.out.println(Arrays.toString(taskService.historyService.getTaskHistoryList()));
+        System.out.println(historyService.getTaskHistoryList());
         System.out.println("Программа завершена");
     }
 
