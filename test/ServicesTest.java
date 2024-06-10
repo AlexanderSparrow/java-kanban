@@ -2,7 +2,7 @@ import org.junit.jupiter.api.Test;
 import service.HistoryService;
 import service.InMemoryHistoryService;
 import service.Services;
-import service.TaskService;
+import service.InMemoryTaskService;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -12,10 +12,10 @@ class ServicesTest {
     @Test
     public void testGetDefaultTaskService() {
         // Проверяем, что метод getDefault возвращает объект, который не равен null
-        TaskService taskService = Services.getDefault();
-        assertNotNull(taskService, "getDefault должен возвращать инициированный экземпляр TaskService");
-        assertEquals(TaskService.class, taskService.getClass(), "getDefault должен возвращать экземпляр класса " +
-                "TaskService");
+        InMemoryTaskService inMemoryTaskService = Services.getDefault();
+        assertNotNull(inMemoryTaskService, "getDefault должен возвращать инициированный экземпляр InMemoryTaskService");
+        assertEquals(InMemoryTaskService.class, inMemoryTaskService.getClass(), "getDefault должен возвращать экземпляр класса " +
+                "InMemoryTaskService");
     }
 
     @Test

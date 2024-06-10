@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class InMemoryHistoryServiceTest {
 
     @Test
-    void getTaskHistoryList() {
+    void testGetTaskHistoryList() {
         InMemoryHistoryService history = new InMemoryHistoryService();
         history.addTaskToHistory(new Task("111","222"));
         List<Task> listened = history.getTaskHistoryList();
@@ -21,7 +21,7 @@ class InMemoryHistoryServiceTest {
     }
 
     @Test
-    void addTaskToHistory() {
+    void testAddTaskToHistory() {
         InMemoryHistoryService history = new InMemoryHistoryService();
         for (int counter = 0; counter < 20; counter++) {
             history.addTaskToHistory(new Task("task" + counter,"task" + counter + "Description"));

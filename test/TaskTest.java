@@ -7,11 +7,8 @@ class TaskTest {
     @Test
     void shouldInstancesOfTheTaskEqualIfTheirIdIsEqual (){
         Task task1 = new Task(1,"123", "456");
-        //addTask(task1);
         Task task2 = new Task(1,"321", "654");
-        //addTask(task2);
         Task task3 = new Task(2,"321", "654");
-        //addTask(task3);
         assertEquals(task1, task2, "Задачи с одинаковым id должны быть равны.");
         assertEquals(task1.hashCode(), task2.hashCode(), "Задачи с одинаковым id должны быть " +
                 "иметь одинаковые hash коды.");

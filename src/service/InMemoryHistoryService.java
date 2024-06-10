@@ -10,7 +10,7 @@ public class InMemoryHistoryService implements HistoryService {
 
     @Override
     public List <Task> getTaskHistoryList() {
-        return taskHistoryList;
+        return new ArrayList<>(taskHistoryList);
     }
 
     @Override
@@ -24,4 +24,5 @@ public class InMemoryHistoryService implements HistoryService {
             }
         taskHistoryList.addFirst(addedTask);
     }
+
 }

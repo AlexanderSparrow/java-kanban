@@ -4,186 +4,55 @@ import model.Epic;
 import model.SubTask;
 import model.Task;
 
-import java.util.*;
+import java.util.List;
+import java.util.Set;
 
-public class TaskService implements InMemoryTaskService{
-    private final Map<Integer, Task> tasks = new HashMap<>();
-    private final Map<Integer, SubTask> subTasks = new HashMap<>();
-    private final Map<Integer, Epic> epics = new HashMap<>();
-    private int counter = 0;
+public interface TaskService {
 
-    private final InMemoryHistoryService historyService = (InMemoryHistoryService) Services.getDefaultHistory();
+    List <Task> getHistory();
 
-    private int getNextCounter() {
-        return ++counter;
-    }
     //Получение всех задач
-    @Override
-    public List<Task> getTasks() {
-        return new ArrayList<>(tasks.values());
-    }
+    List<Task> getTasks();
 
-    @Override
-    public List<SubTask> getSubTasks() {
-        return new ArrayList<>(subTasks.values());
-    }
+    List<SubTask> getSubTasks();
 
-    @Override
-    public List<Epic> getEpics() {
-        return new ArrayList<>(epics.values());
-    }
+    List<Epic> getEpics();
 
     //Список всех задач эпика
-    @Override
-    public Set<SubTask> getAllSubTasksByEpic(int id) {
-        if (!epics.containsKey(id)) {
-            System.out.printf("Эпик с номером %d отсутствует.", id);
-            return new HashSet<>();
-        }
-        return epics.get(id).getSubTasks();
-    }
-
+    Set<SubTask> getAllSubTasksByEpic(int id);
 
     // Создание задач, подзадач, эпиков
-    @Override
-    public void addTask(Task task) {
-        int id = getNextCounter();
-        task.setId(id);
-        tasks.put(id, task);
-    }
+    void addTask(Task task);
 
-    @Override
-    public void addSubTask(SubTask subTask) {
-        if (!epics.containsValue(subTask.getEpic())) {
-            System.out.println("Эпик отсутствует в хранилище. Ничего добавлять не будем, нам нельзя :-).");
-            return;
-        }
-        int id = getNextCounter();
-        subTask.setId(id);
-        subTasks.put(id, subTask);
-        subTask.getEpic().getSubTasks().add(subTask);
-        subTask.getEpic().updateEpicStatus();
-    }
+    void addSubTask(SubTask subTask);
 
-    @Override
-    public void addEpic(Epic epic) {
-        int id = getNextCounter();
-        epic.setId(id);
-        epics.put(epic.getId(), epic);
-    }
+    void addEpic(Epic epic);
 
     //Получение задач, подзадач, эпиков по ID
-    @Override
-    public Task getTaskById(int id) {
-        historyService.addTaskToHistory(tasks.get(id));
-        return tasks.get(id);
+    Task getTaskById(int id);
 
-    }
+    SubTask getSubTaskById(int id);
 
-    @Override
-    public SubTask getSubTaskById(int id) {
-        historyService.addTaskToHistory(subTasks.get(id));
-        return subTasks.get(id);
-    }
-
-    @Override
-    public Epic getEpicById(int id) {
-        if (!epics.containsKey(id)) {
-            System.out.println("such epic not found");
-            return null;
-        }
-        historyService.addTaskToHistory(epics.get(id));
-        return epics.get(id);
-    }
+    Epic getEpicById(int id);
 
     //Удалить задачу по ID
-    @Override
-    public void removeTask(int id) {
-        tasks.remove(id);
-    }
+    void removeTask(int id);
 
-    @Override
-    public void removeSubTask(int id) {
-        SubTask subTask = subTasks.get(id);
-        if (subTask != null) {
-            subTask.getEpic().getSubTasks().remove(subTask);
-            subTask.getEpic().updateEpicStatus();
-            subTasks.remove(id);
-        }
-    }
+    void removeSubTask(int id);
 
-    @Override
-    public void removeEpic(int id) {
-        Epic epic = epics.get(id);
-        if (epic != null) {
-            Set<SubTask> epicSubTasks = epic.getSubTasks();
-            for (SubTask subTask : epicSubTasks) {
-                subTasks.remove(subTask.getId());
-            }
-        }
-        epics.remove(id);
-    }
+    void removeEpic(int id);
 
     //Обновление задач
-    @Override
-    public void updateTask(Task task) {
-        if (tasks.containsKey(task.getId())) {
-            tasks.put(task.getId(), task);
-        } else {
-            System.out.println("Такой задачи не существует");
-        }
-    }
+    void updateTask(Task task);
 
-    @Override
-    public void updateSubTask(SubTask subTask) {
-        if (subTasks.containsKey(subTask.getId())) {
-            SubTask oldSbTask = subTasks.get(subTask.getId());
-            subTask.getEpic().getSubTasks().remove(oldSbTask);
-            subTask.getEpic().getSubTasks().add(subTask);
-            subTask.getEpic().updateEpicStatus();
-            subTasks.put(subTask.getId(), subTask);
-        } else {
-            System.out.println("Такой подзадачи не существует");
-        }
-    }
+    void updateSubTask(SubTask subTask);
 
-    @Override
-    public void updateEpic(Epic epic) {
-        if (epics.containsKey(epic.getId())) {
-            final Epic savedEpic = epics.get(epic.getId());
-            savedEpic.setName(epic.getName());
-            savedEpic.setDescription(epic.getDescription());
-        } else {
-            System.out.println("Такого эпика не существует");
-        }
-    }
+    void updateEpic(Epic epic);
 
     // Удаление всех задач, подзадач, эпиков
-    @Override
-    public void removeAllTasks() {
-        tasks.clear();
-    }
+    void removeAllTasks();
 
-    @Override
-    public void removeAllSubTasks() {
-        if (subTasks.isEmpty()) {
-            System.out.println("Список подзадач пуст.");
-            return;
-        }
-        for (Epic epic : epics.values()) {
-            epic.getSubTasks().clear();
-            epic.updateEpicStatus();
-        }
-        subTasks.clear();
-    }
+    void removeAllSubTasks();
 
-    @Override
-    public void removeAllEpics() {
-        if (epics.isEmpty()) {
-            System.out.println("Список подзадач пуст.");
-            return;
-        }
-        subTasks.clear();
-        epics.clear();
-    }
+    void removeAllEpics();
 }
