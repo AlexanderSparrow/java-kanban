@@ -25,4 +25,8 @@ public class InMemoryHistoryService implements HistoryService {
         taskHistoryList.addFirst(addedTask);
     }
 
+    @Override
+    public void remove(int id) {
+        taskHistoryList.remove(id);
+    }
 }

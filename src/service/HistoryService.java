@@ -10,4 +10,6 @@ public interface HistoryService {
 
     void addTaskToHistory(Task addedTask);
 
+    void remove(int id);
+
 }
