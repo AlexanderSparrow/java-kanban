@@ -9,7 +9,7 @@ import java.util.Set;
 
 public interface TaskService {
 
-    List <Task> getHistory();
+    List<Task> getHistory();
 
     //Получение всех задач
     List<Task> getTasks();

@@ -127,7 +127,7 @@ public class Main {
         List <Task> tasks = inMemoryTaskService.getTasks();
         if (!tasks.isEmpty()) {
             System.out.println("Список задач (списком):");
-            for (Task task : inMemoryTaskService.getTasks()) {
+            for (Task task : tasks) {
                 System.out.println("ID: " + task.getId() + ", Название: " + task.getName() + ", Описание: "
                         + task.getDescription() + ", Статус: " + task.getStatus());
             }
@@ -185,8 +185,9 @@ public class Main {
     }
 
     public static Epic getEpicByName(String name, InMemoryTaskService inMemoryTaskService) {
+        List<Epic> tasks = inMemoryTaskService.getEpics();
         Epic foundedEpic = null;
-        for (Epic epic : inMemoryTaskService.getEpics()) {
+        for (Epic epic : tasks) {
             if (epic.getName().equals(name)) {
                 foundedEpic = epic;
                 break;
@@ -194,5 +195,4 @@ public class Main {
         }
         return foundedEpic;
     }
-
 }
