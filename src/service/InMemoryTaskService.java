@@ -193,6 +193,6 @@ public class InMemoryTaskService implements TaskService {
         subTasks.clear();
         epics.clear();
         historyService.removeAllTaskByType(Epic.class);
-        historyService.removeAllTaskByType(Services.class);
+        historyService.removeAllTaskByType(SubTask.class);
     }
 }
