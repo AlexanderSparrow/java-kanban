@@ -6,7 +6,7 @@ import model.Task;
 
 import java.util.*;
 
-public class InMemoryTaskService<T> implements TaskService {
+public class InMemoryTaskService implements TaskService {
     private final Map<Integer, Task> tasks = new HashMap<>();
     private final Map<Integer, SubTask> subTasks = new HashMap<>();
     private final Map<Integer, Epic> epics = new HashMap<>();
@@ -193,5 +193,6 @@ public class InMemoryTaskService<T> implements TaskService {
         subTasks.clear();
         epics.clear();
         historyService.removeAllTaskByType(Epic.class);
+        historyService.removeAllTaskByType(Services.class);
     }
 }
