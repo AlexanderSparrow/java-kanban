@@ -165,7 +165,6 @@ public class InMemoryTaskService implements TaskService {
     // Удаление всех задач, подзадач, эпиков
     @Override
     public void removeAllTasks() {
-        //Task task = tasks.get(1);
         tasks.clear();
         historyService.removeAllTaskByType(Task.class);
     }
