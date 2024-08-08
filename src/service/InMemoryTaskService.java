@@ -10,8 +10,9 @@ public class InMemoryTaskService implements TaskService {
     private final Map<Integer, Task> tasks = new HashMap<>();
     private final Map<Integer, SubTask> subTasks = new HashMap<>();
     private final Map<Integer, Epic> epics = new HashMap<>();
-    private final HistoryService historyService = Services.getDefaultHistory();
     private int counter = 0;
+
+    private final HistoryService historyService = Services.getDefaultHistory();
 
     @Override
     public List<Task> getHistory() {
@@ -21,7 +22,6 @@ public class InMemoryTaskService implements TaskService {
     private int getNextCounter() {
         return ++counter;
     }
-
     //Получение всех задач
     @Override
     public List<Task> getTasks() {
@@ -101,7 +101,6 @@ public class InMemoryTaskService implements TaskService {
     @Override
     public void removeTask(int id) {
         tasks.remove(id);
-        historyService.remove(id);
     }
 
     @Override
@@ -111,7 +110,6 @@ public class InMemoryTaskService implements TaskService {
             subTask.getEpic().getSubTasks().remove(subTask);
             subTask.getEpic().updateEpicStatus();
             subTasks.remove(id);
-            historyService.remove(id);
         }
     }
 
@@ -125,7 +123,6 @@ public class InMemoryTaskService implements TaskService {
             }
         }
         epics.remove(id);
-        historyService.remove(id);
     }
 
     //Обновление задач
@@ -166,7 +163,6 @@ public class InMemoryTaskService implements TaskService {
     @Override
     public void removeAllTasks() {
         tasks.clear();
-        historyService.removeAllTaskByType(Task.class);
     }
 
     @Override
@@ -180,7 +176,6 @@ public class InMemoryTaskService implements TaskService {
             epic.updateEpicStatus();
         }
         subTasks.clear();
-        historyService.removeAllTaskByType(SubTask.class);
     }
 
     @Override
@@ -191,7 +186,5 @@ public class InMemoryTaskService implements TaskService {
         }
         subTasks.clear();
         epics.clear();
-        historyService.removeAllTaskByType(Epic.class);
-        historyService.removeAllTaskByType(SubTask.class);
     }
 }
