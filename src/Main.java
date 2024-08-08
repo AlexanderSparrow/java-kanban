@@ -2,16 +2,21 @@ import model.Epic;
 import model.Status;
 import model.SubTask;
 import model.Task;
+import service.FileBackedTaskService;
 import service.InMemoryTaskService;
 import service.Services;
 
+import java.io.File;
 import java.util.List;
 import java.util.Set;
 
 public class Main {
 
     public static void main(String[] args) {
-        InMemoryTaskService inMemoryTaskService = Services.getDefault(); // Создание менеджера задач
+        //InMemoryTaskService inMemoryTaskService = Services.getDefault(); // Создание менеджера задач
+        File file = new File("/Users/alexandergorobets/Documents/IdeaProjects/finalPracticeOfSprints/java-kanban/data/tasks.csv");
+        FileBackedTaskService inMemoryTaskService = new FileBackedTaskService(file);
+
         System.out.println("Добавляем задачи...");// добавление задач
         inMemoryTaskService.addTask(new Task(0, "first task",
                 "write code of final task of 4 sprint", Status.IN_PROGRESS));
@@ -24,9 +29,11 @@ public class Main {
         inMemoryTaskService.addEpic(new Epic(155, "epic2", "second epic"));
 
         inMemoryTaskService.addSubTask(new SubTask(444, "first subtask",
-                "write code of final task of 4 sprint", Status.DONE, getEpicByName("epic1", inMemoryTaskService)));
+                "write code of final task of 4 sprint", Status.DONE, getEpicByName("epic1",
+                inMemoryTaskService)));
         inMemoryTaskService.addSubTask(new SubTask(555, "second subtask",
-                "check the code for functionality", Status.IN_PROGRESS, getEpicByName("epic1", inMemoryTaskService)));
+                "check the code for functionality", Status.IN_PROGRESS, getEpicByName("epic1",
+                inMemoryTaskService)));
 
         inMemoryTaskService.addSubTask(new SubTask(2, "first subtask2",
                 "relax", Status.DONE, getEpicByName("epic2", inMemoryTaskService)));
@@ -45,10 +52,10 @@ public class Main {
         inMemoryTaskService.removeTask(1);
         listOfTasks(inMemoryTaskService);
 
-        System.out.println("Статус эпика: " + getEpicByName("epic1", inMemoryTaskService).getStatus());
-        listOfSubTasksByEpicById(4, inMemoryTaskService);
-        System.out.println("Статус эпика: " + getEpicByName("epic2", inMemoryTaskService).getStatus());
-        listOfSubTasksByEpic("epic2", inMemoryTaskService);
+  /*     System.out.println("Статус эпика: " + getEpicByName("epic1", inMemoryTaskService).getStatus());
+        listOfSubTasksByEpicById(19, inMemoryTaskService);*/
+ /*       System.out.println("Статус эпика: " + getEpicByName("epic2", inMemoryTaskService).getStatus());
+        listOfSubTasksByEpic("epic2", inMemoryTaskService);*/
 
         System.out.println("\nЗадачи по ID:");
         System.out.println(inMemoryTaskService.getTaskById(2));
@@ -91,10 +98,10 @@ public class Main {
         listOfSubTasksByEpic("epic2", inMemoryTaskService);
 
 
-        System.out.println("\nОбновили эпик:");
+        /*System.out.println("\nОбновили эпик:");
         inMemoryTaskService.updateEpic(new Epic(4, "updated epic name", "updated epic description"));
         listOfEpics(inMemoryTaskService);
-        listOfSubTasksByEpic(inMemoryTaskService.getEpicById(4).getName(), inMemoryTaskService);
+        listOfSubTasksByEpic(inMemoryTaskService.getEpicById(4).getName(), inMemoryTaskService);*/
 
 
         System.out.println("\nУдаляем эпик...");
