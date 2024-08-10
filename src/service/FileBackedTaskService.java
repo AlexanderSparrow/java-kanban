@@ -59,10 +59,7 @@ public class FileBackedTaskService extends InMemoryTaskService {
                     case SUBTASK:
                         int epicId = Integer.parseInt(fields[5]);
                         Epic epic = fileBackedTaskService.getEpicById(epicId);
-                        if (epic == null) {
-                            System.err.println("Epic with ID " + epicId + " not found for SubTask.");
-                            continue; // Пропустить эту строку, если эпик не найден
-                        }
+                        System.err.println("Epic with ID " + epicId + " not found for SubTask.");
                         fileBackedTaskService.addSubTask(CsvTaskParser.fromCsvString(line, epic));
                         break;
                 }
@@ -77,30 +74,30 @@ public class FileBackedTaskService extends InMemoryTaskService {
 
     private void setIdCounter(int maxId) {
         // Этот метод устанавливает значение счетчика ID в менеджере задач
-        setCounter(maxId); // Вызываем метод установки счетчика из InMemoryTaskService или родительского класса
+        super.setCounter(maxId); // Вызываем метод установки счетчика из InMemoryTaskService или родительского класса
     }
-
+/*
     private int getNextCounter() {
-        return (super.getNextId() + 1); // Используем метод получения следующего ID из родительского класса
-    }
+        return super.getNextId(); // Используем метод получения следующего ID из родительского класса
+    }*/
 
     @Override
     public void addTask(Task task) {
-        task.setId(getNextCounter());
+        //task.setId(getNextId());
         super.addTask(task);
         save();
     }
 
     @Override
     public void addSubTask(SubTask subTask) {
-        subTask.setId(getNextCounter());
+       // subTask.setId(getNextId());
         super.addSubTask(subTask);
         save();
     }
 
     @Override
     public void addEpic(Epic epic) {
-        epic.setId(getNextCounter());
+     //   epic.setId(getNextId());
         super.addEpic(epic);
         save();
     }

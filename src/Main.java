@@ -49,13 +49,13 @@ public class Main {
         listOfTasks(inMemoryTaskService);
 
         System.out.println("\nУдаляем задачу...");
-        inMemoryTaskService.removeTask(1);
+       // inMemoryTaskService.removeTask(1);
         listOfTasks(inMemoryTaskService);
 
-  /*     System.out.println("Статус эпика: " + getEpicByName("epic1", inMemoryTaskService).getStatus());
-        listOfSubTasksByEpicById(19, inMemoryTaskService);*/
- /*       System.out.println("Статус эпика: " + getEpicByName("epic2", inMemoryTaskService).getStatus());
-        listOfSubTasksByEpic("epic2", inMemoryTaskService);*/
+      System.out.println("Статус эпика: " + getEpicByName("epic1", inMemoryTaskService).getStatus());
+        listOfSubTasksByEpicById(5, inMemoryTaskService);
+        System.out.println("Статус эпика: " + getEpicByName("epic2", inMemoryTaskService).getStatus());
+        listOfSubTasksByEpic("epic2", inMemoryTaskService);
 
         System.out.println("\nЗадачи по ID:");
         System.out.println(inMemoryTaskService.getTaskById(2));
@@ -80,7 +80,7 @@ public class Main {
 
         System.out.println("\nУдаляем подзадачу...");
         System.out.println("Удалили подзадачу.");
-        inMemoryTaskService.removeSubTask(9);
+        //inMemoryTaskService.removeSubTask(9);
         listOfSubTasks(inMemoryTaskService);
         listOfEpics(inMemoryTaskService);
         listOfSubTasksByEpic("epic1", inMemoryTaskService);
@@ -98,13 +98,13 @@ public class Main {
         listOfSubTasksByEpic("epic2", inMemoryTaskService);
 
 
-        System.out.println("\nОбновили эпик:");
+        /*System.out.println("\nОбновили эпик:");
         inMemoryTaskService.updateEpic(new Epic(4, "updated epic name", "updated epic description"));
         listOfEpics(inMemoryTaskService);
         listOfSubTasksByEpic(inMemoryTaskService.getEpicById(4).getName(), inMemoryTaskService);
 
-
-        System.out.println("\nУдаляем эпик...");
+*/
+        /*System.out.println("\nУдаляем эпик...");
         System.out.println("Удалили эпик.");
         inMemoryTaskService.removeEpic(4);
         listOfSubTasks(inMemoryTaskService);
@@ -119,7 +119,7 @@ public class Main {
         removeAllSubTasks(inMemoryTaskService);
         inMemoryTaskService.removeAllEpics();
         System.out.println("История просмотра задач:");
-        System.out.println(inMemoryTaskService.getHistory());
+        System.out.println(inMemoryTaskService.getHistory());*/
         System.out.println("Программа завершена");
     }
 
