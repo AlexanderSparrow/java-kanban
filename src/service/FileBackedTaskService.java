@@ -3,7 +3,9 @@ package service;
 import exceptions.ManagerSaveException;
 import model.*;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.util.List;
 
@@ -13,19 +15,19 @@ public class FileBackedTaskService extends InMemoryTaskService {
 
     public FileBackedTaskService(File file) {
         this.file = file;
-        loadFromFile(file);
+        //loadFromFile(file);
     }
 
     private void save() {
         try (FileWriter writer = new FileWriter(file)) {
             writer.write("id,type,name,status,description,epic\n");
             for (Task task : getTasks()) {
-                writer.write(task.toString() + "\n");
+                writer.write(CsvTaskParser.toStringCSV(task) + "\n");
             }
             for (Epic epic : getEpics()) {
-                writer.write(epic.toString() + "\n");
+                writer.write(CsvTaskParser.toStringCSV(epic) + "\n");
                 for (SubTask subTask : epic.getSubTasks()) {
-                    writer.write(subTask.toString() + "\n");
+                    writer.write(CsvTaskParser.toStringCSV(subTask) + "\n");
                 }
             }
         } catch (IOException e) {
@@ -33,15 +35,15 @@ public class FileBackedTaskService extends InMemoryTaskService {
         }
     }
 
-    private FileBackedTaskService loadFromFile(File file) {
-      //return new FileBackedTaskService(file);
+    public static FileBackedTaskService loadFromFile(File file) {
+        FileBackedTaskService fileBackedTaskService = new FileBackedTaskService(file);
         try {
             if (!file.exists()) {
-                return null;
+                return fileBackedTaskService;
             }
 
             List<String> lines = Files.readAllLines(file.toPath());
-            for (String line : lines.subList(1, lines.size())) {
+            for (String line : lines.subList(1, lines.size())) {  // Пропускаем заголовок
                 String[] fields = line.split(",");
                 int id = Integer.parseInt(fields[0]);
                 TaskType type = TaskType.valueOf(fields[1]);
@@ -49,35 +51,31 @@ public class FileBackedTaskService extends InMemoryTaskService {
 
                 switch (type) {
                     case TASK:
-                        addTask(Task.fromString(line));
+                        fileBackedTaskService.addTask(CsvTaskParser.fromCsvString(line));
                         break;
                     case EPIC:
-                        addEpic(Epic.fromString(line));
+                        fileBackedTaskService.addEpic((Epic) CsvTaskParser.fromCsvString(line));
                         break;
                     case SUBTASK:
                         int epicId = Integer.parseInt(fields[5]);
-                        Epic epic = getEpicById(epicId);
+                        Epic epic = fileBackedTaskService.getEpicById(epicId);
                         if (epic == null) {
                             System.err.println("Epic with ID " + epicId + " not found for SubTask.");
                             continue; // Пропустить эту строку, если эпик не найден
                         }
-                        addSubTask(SubTask.fromString(line, epic));
+                        fileBackedTaskService.addSubTask(CsvTaskParser.fromCsvString(line, epic));
                         break;
                 }
             }
         } catch (IOException e) {
             throw new ManagerSaveException("Failed to load tasks from file.", e);
         }
-        return null;
+        return fileBackedTaskService;
     }
 
     private int getNextCounter() {
         return ++currentMaxId;
     }
-
-    /*public static FileBackedTaskService loadFromFile(File file) {
-        return new FileBackedTaskService(file);
-    }*/
 
     @Override
     public void addTask(Task task) {
@@ -154,4 +152,3 @@ public class FileBackedTaskService extends InMemoryTaskService {
         save();
     }
 }
-

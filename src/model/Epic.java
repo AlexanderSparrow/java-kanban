@@ -38,14 +38,4 @@ public class Epic extends Task {
             status = Status.IN_PROGRESS;
         }
     }
-
-    @Override
-    public String toString() {
-        return String.format("%d,%s,%s,%s,%s", id, TaskType.EPIC, name, status, description);
-    }
-
-    public static Epic fromString(String value) {
-        String[] fields = value.split(",");
-        return new Epic(Integer.parseInt(fields[0]), fields[2], fields[4]);
-    }
 }

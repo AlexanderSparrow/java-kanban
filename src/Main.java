@@ -4,7 +4,6 @@ import model.SubTask;
 import model.Task;
 import service.FileBackedTaskService;
 import service.InMemoryTaskService;
-import service.Services;
 
 import java.io.File;
 import java.util.List;
@@ -15,7 +14,7 @@ public class Main {
     public static void main(String[] args) {
         //InMemoryTaskService inMemoryTaskService = Services.getDefault(); // Создание менеджера задач
         File file = new File("/Users/alexandergorobets/Documents/IdeaProjects/finalPracticeOfSprints/java-kanban/data/tasks.csv");
-        FileBackedTaskService inMemoryTaskService = new FileBackedTaskService(file);
+        FileBackedTaskService inMemoryTaskService = new FileBackedTaskService(file);// Создание менеджера задач
 
         System.out.println("Добавляем задачи...");// добавление задач
         inMemoryTaskService.addTask(new Task(0, "first task",
@@ -41,7 +40,8 @@ public class Main {
                 "continue relax", Status.IN_PROGRESS, getEpicByName("epic2", inMemoryTaskService)));
         inMemoryTaskService.addSubTask(new SubTask(5, "third subtask2",
                 "continue relax more", Status.NEW, getEpicByName("epic2", inMemoryTaskService)));
-
+        inMemoryTaskService.addSubTask(new SubTask(6, "fourth subtask2",
+                "continue relax more&more", Status.NEW, getEpicByName("epic2", inMemoryTaskService)));
         listOfTasks(inMemoryTaskService);
 
         System.out.println("Обновили задачу:");
@@ -98,10 +98,10 @@ public class Main {
         listOfSubTasksByEpic("epic2", inMemoryTaskService);
 
 
-        /*System.out.println("\nОбновили эпик:");
+        System.out.println("\nОбновили эпик:");
         inMemoryTaskService.updateEpic(new Epic(4, "updated epic name", "updated epic description"));
         listOfEpics(inMemoryTaskService);
-        listOfSubTasksByEpic(inMemoryTaskService.getEpicById(4).getName(), inMemoryTaskService);*/
+        listOfSubTasksByEpic(inMemoryTaskService.getEpicById(4).getName(), inMemoryTaskService);
 
 
         System.out.println("\nУдаляем эпик...");
@@ -124,14 +124,14 @@ public class Main {
     }
 
     private static void removeAllSubTasks(InMemoryTaskService inMemoryTaskService) {
-        listOfSubTasks (inMemoryTaskService);
+        listOfSubTasks(inMemoryTaskService);
         System.out.println("\nУдаляем все подзадачи...");
         inMemoryTaskService.removeAllSubTasks();
-        listOfSubTasks (inMemoryTaskService);
+        listOfSubTasks(inMemoryTaskService);
     }
 
     private static void listOfTasks(InMemoryTaskService inMemoryTaskService) {
-        List <Task> tasks = inMemoryTaskService.getTasks();
+        List<Task> tasks = inMemoryTaskService.getTasks();
         if (!tasks.isEmpty()) {
             System.out.println("Список задач (списком):");
             for (Task task : tasks) {
@@ -148,9 +148,9 @@ public class Main {
         List<SubTask> tasks = inMemoryTaskService.getSubTasks();
         if (!tasks.isEmpty()) {
             System.out.println("Список подзадач (списком):");
-            for (Task task : tasks) {
-                System.out.println("ID: " + task.getId() + ", Название: " + task.getName() + ", Описание: "
-                        + task.getDescription() + ", Статус: " + task.getStatus());
+            for (SubTask subTask : tasks) { // Исправлено на SubTask
+                System.out.println("ID: " + subTask.getId() + ", Название: " + subTask.getName() + ", Описание: "
+                        + subTask.getDescription() + ", Статус: " + subTask.getStatus());
             }
         } else {
             System.out.println("Список подзадач пуст.");
@@ -159,12 +159,12 @@ public class Main {
     }
 
     public static void listOfEpics(InMemoryTaskService inMemoryTaskService) {
-        List<Epic> tasks = inMemoryTaskService.getEpics();
-        if (!tasks.isEmpty()) {
+        List<Epic> epics = inMemoryTaskService.getEpics();
+        if (!epics.isEmpty()) {
             System.out.println("Список эпиков (списком):");
-            for (Task task : tasks) {
-                System.out.println("ID: " + task.getId() + ", Название: " + task.getName() + ", Описание: "
-                        + task.getDescription() + ", Статус: " + task.getStatus());
+            for (Epic epic : epics) { // Исправлено на Epic
+                System.out.println("ID: " + epic.getId() + ", Название: " + epic.getName() + ", Описание: "
+                        + epic.getDescription() + ", Статус: " + epic.getStatus());
             }
         } else {
             System.out.println("Список 'эпиков' пуст.");

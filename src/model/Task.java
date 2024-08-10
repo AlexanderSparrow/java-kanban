@@ -56,6 +56,7 @@ public class Task {
     public void setStatus(Status status) {
         this.status = status;
     }
+
     public void setId(int id) {
         this.id = id;
     }
@@ -75,12 +76,12 @@ public class Task {
 
     @Override
     public String toString() {
-        return String.format("%d,%s,%s,%s,%s", id, TaskType.TASK, name, status, description);
-    }
-
-    public static Task fromString(String value) {
-        String[] fields = value.split(",");
-        return new Task(Integer.parseInt(fields[0]), fields[2], fields[4], Status.valueOf(fields[3]));
+        return "Task{" +
+                "taskId=" + id +
+                ", taskName='" + name + '\'' +
+                ", taskDescription='" + description + '\'' +
+                ", taskStatus=" + status +
+                '}';
     }
 }
 

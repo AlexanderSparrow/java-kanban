@@ -22,6 +22,7 @@ public class InMemoryTaskService implements TaskService {
     private int getNextCounter() {
         return ++counter;
     }
+
     //Получение всех задач
     @Override
     public List<Task> getTasks() {
