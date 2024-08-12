@@ -34,6 +34,9 @@ public class CsvTaskParser {
     // Метод для создания Task из CSV-строки
     public static Task fromCsvString(String value) {
         String[] fields = value.split(",");
+        if (fields.length < 5) {
+            throw new IllegalArgumentException("Недостаточно полей в CSV строке: " + value);
+        }
         int id = Integer.parseInt(fields[0]);
         TaskType type = TaskType.valueOf(fields[1]);
         String name = fields[2];

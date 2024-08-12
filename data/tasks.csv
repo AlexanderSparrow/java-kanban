@@ -1,12 +1,4 @@
 id,type,name,status,description,epic
-1,TASK,updatedName,NEW,UpdatedDescription
-2,TASK,second task,IN_PROGRESS,check the logic of the program
-3,TASK,third task,IN_PROGRESS,submit the third task of the 4th sprint for review
-4,EPIC,epic1,IN_PROGRESS,first epic
-6,SUBTASK,updatedName,DONE,UpdatedDescription,4
-7,SUBTASK,second subtask,IN_PROGRESS,check the code for functionality,4
-5,EPIC,epic2,IN_PROGRESS,second epic
-8,SUBTASK,updatedName2,NEW,UpdatedDescription2,5
-9,SUBTASK,second subtask2,IN_PROGRESS,continue relax,5
-10,SUBTASK,third subtask2,NEW,continue relax more,5
-11,SUBTASK,fourth subtask2,NEW,continue relax more&more,5
+1,TASK,first task,IN_PROGRESS,write code of final task of 4 sprint
+2,EPIC,epic1,DONE,first epic
+3,SUBTASK,first subtask,DONE,write code of final task of 4 sprint,2

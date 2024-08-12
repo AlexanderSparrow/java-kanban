@@ -51,16 +51,19 @@ public class FileBackedTaskService extends InMemoryTaskService {
 
                 switch (type) {
                     case TASK:
-                        fileBackedTaskService.addTask(CsvTaskParser.fromCsvString(line));
+                        Task task = CsvTaskParser.fromCsvString(line);
+                        fileBackedTaskService.tasks.put(task.getId(), task);
                         break;
                     case EPIC:
-                        fileBackedTaskService.addEpic((Epic) CsvTaskParser.fromCsvString(line));
+                        Epic epic = (Epic) CsvTaskParser.fromCsvString(line);
+                        fileBackedTaskService.epics.put(epic.getId(), epic);
                         break;
                     case SUBTASK:
                         int epicId = Integer.parseInt(fields[5]);
-                        Epic epic = fileBackedTaskService.getEpicById(epicId);
+                        Epic epic1 = fileBackedTaskService.getEpicById(epicId);
                         System.err.println("Epic with ID " + epicId + " not found for SubTask.");
-                        fileBackedTaskService.addSubTask(CsvTaskParser.fromCsvString(line, epic));
+                        SubTask subTask = CsvTaskParser.fromCsvString(line, epic1);
+                        fileBackedTaskService.subTasks.put(subTask.getId(),subTask);
                         break;
                 }
             }
@@ -76,28 +79,27 @@ public class FileBackedTaskService extends InMemoryTaskService {
         // Этот метод устанавливает значение счетчика ID в менеджере задач
         super.setCounter(maxId); // Вызываем метод установки счетчика из InMemoryTaskService или родительского класса
     }
-/*
-    private int getNextCounter() {
-        return super.getNextId(); // Используем метод получения следующего ID из родительского класса
-    }*/
 
+    public int getCounter() {
+        return counter;
+    }
     @Override
     public void addTask(Task task) {
-        //task.setId(getNextId());
+        task.setId(counter);
         super.addTask(task);
         save();
     }
 
     @Override
     public void addSubTask(SubTask subTask) {
-       // subTask.setId(getNextId());
+        subTask.setId(counter);
         super.addSubTask(subTask);
         save();
     }
 
     @Override
     public void addEpic(Epic epic) {
-     //   epic.setId(getNextId());
+        epic.setId(counter);
         super.addEpic(epic);
         save();
     }
@@ -155,21 +157,22 @@ public class FileBackedTaskService extends InMemoryTaskService {
         super.removeAllEpics();
         save();
     }
+
     public static void main(String[] args) {
         File file = new File("tasks.csv");
 
         // 1. Создадим несколько задач, эпиков и подзадач
         FileBackedTaskService manager = new FileBackedTaskService(file);
 
-        Task task1 = new Task(1, "Name 1", "Description 1",Status.NEW);
-        Task task2 = new Task(2, "Name 2", "Description 2",Status.IN_PROGRESS);
+        Task task1 = new Task(1, "Name 1", "Description 1", Status.NEW);
+        Task task2 = new Task(2, "Name 2", "Description 2", Status.IN_PROGRESS);
 
-        Epic epic1 = new Epic(3,"Epic Name 1","Epic Description 1");
-        Epic epic2 = new Epic(4, "Epic Name 2","Epic Description 2");
+        Epic epic1 = new Epic(3, "Epic Name 1", "Epic Description 1");
+        Epic epic2 = new Epic(4, "Epic Name 2", "Epic Description 2");
 
-        SubTask subTask1 = new SubTask(5, "SubTask Name 1","SubTask Description 1", Status.NEW, epic1);
-        SubTask subTask2 = new SubTask(6, "SubTask Name 1","SubTask Description 2", Status.DONE, epic1);
-        SubTask subTask3 = new SubTask(7, "SubTask Name 1","SubTask Description 3", Status.IN_PROGRESS, epic2);
+        SubTask subTask1 = new SubTask(5, "SubTask Name 1", "SubTask Description 1", Status.NEW, epic1);
+        SubTask subTask2 = new SubTask(6, "SubTask Name 2", "SubTask Description 2", Status.DONE, epic1);
+        SubTask subTask3 = new SubTask(7, "SubTask Name 3", "SubTask Description 3", Status.IN_PROGRESS, epic2);
 
         manager.addTask(task1);
         manager.addTask(task2);
