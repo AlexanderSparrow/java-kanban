@@ -26,10 +26,6 @@ public class Main {
         inMemoryTaskService.addSubTask(new SubTask(444, "first subtask",
                 "write code of final task of 4 sprint", Status.DONE, getEpicByName("epic1",
                 inMemoryTaskService)));
-
-        inMemoryTaskService.addSubTask(new SubTask(2, "first subtask2",
-                "relax", Status.DONE, getEpicByName("epic2", inMemoryTaskService)));
-
     }
 
     private static void removeAllSubTasks(InMemoryTaskService inMemoryTaskService) {

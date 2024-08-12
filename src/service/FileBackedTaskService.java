@@ -64,10 +64,11 @@ public class FileBackedTaskService extends InMemoryTaskService {
                         System.err.println("Epic with ID " + epicId + " not found for SubTask.");
                         SubTask subTask = CsvTaskParser.fromCsvString(line, epic1);
                         fileBackedTaskService.subTasks.put(subTask.getId(),subTask);
+                        subTask.getEpic().getSubTasks().add(subTask);
                         break;
                 }
             }
-            fileBackedTaskService.setIdCounter(currentMaxId); // Присваиваем максимальный ID счетчику
+            fileBackedTaskService.counter = currentMaxId; // Присваиваем максимальный ID счетчику
 
         } catch (IOException e) {
             throw new ManagerSaveException("Failed to load tasks from file.", e);
@@ -75,31 +76,23 @@ public class FileBackedTaskService extends InMemoryTaskService {
         return fileBackedTaskService;
     }
 
-    private void setIdCounter(int maxId) {
-        // Этот метод устанавливает значение счетчика ID в менеджере задач
-        super.setCounter(maxId); // Вызываем метод установки счетчика из InMemoryTaskService или родительского класса
-    }
-
     public int getCounter() {
         return counter;
     }
     @Override
     public void addTask(Task task) {
-        task.setId(counter);
         super.addTask(task);
         save();
     }
 
     @Override
     public void addSubTask(SubTask subTask) {
-        subTask.setId(counter);
         super.addSubTask(subTask);
         save();
     }
 
     @Override
     public void addEpic(Epic epic) {
-        epic.setId(counter);
         super.addEpic(epic);
         save();
     }

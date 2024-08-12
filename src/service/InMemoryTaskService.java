@@ -188,12 +188,4 @@ public class InMemoryTaskService implements TaskService {
         subTasks.clear();
         epics.clear();
     }
-
-    protected void setCounter(int fileMaxId) {
-        counter = fileMaxId;
-    }
-
-    protected int getNextId() {
-       return getNextCounter();
-    }
 }
