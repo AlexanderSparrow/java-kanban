@@ -69,6 +69,7 @@ public class InMemoryTaskService implements TaskService {
         subTasks.put(id, subTask);
         subTask.getEpic().getSubTasks().add(subTask);
         subTask.getEpic().updateEpicStatus();
+        subTask.getEpic().calculateFields();
     }
 
     @Override
@@ -118,13 +119,14 @@ public class InMemoryTaskService implements TaskService {
     public void removeEpic(int id) {
         Epic epic = epics.get(id);
         if (epic != null) {
-            Set<SubTask> epicSubTasks = epic.getSubTasks();
-            for (SubTask subTask : epicSubTasks) {
-                subTasks.remove(subTask.getId());
-            }
+            // Удаляем все подзадачи эпика с использованием Stream API
+            epic.getSubTasks().stream()
+                    .map(SubTask::getId)
+                    .forEach(subTasks::remove);
         }
         epics.remove(id);
     }
+
 
     //Обновление задач
     @Override

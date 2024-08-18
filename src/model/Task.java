@@ -1,18 +1,24 @@
 package model;
 
 import java.util.Objects;
+import java.time.Duration;
+import java.time.LocalDateTime;
 
 public class Task {
     protected int id;
     protected String name;
     protected String description;
     protected Status status;
+    private Duration duration;
+    private LocalDateTime startTime;
 
-    public Task(int id, String name, String description, Status status) {
+    public Task(int id, String name, String description, Status status, Duration duration, LocalDateTime startTime) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.status = status;
+        this.duration = duration;
+        this.startTime = startTime;
     }
 
     public Task(String name, String description) {
@@ -59,6 +65,27 @@ public class Task {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public Duration getDuration() {
+        return duration;
+    }
+
+    public void setDuration(Duration duration) {
+        this.duration = duration;
+    }
+
+    public LocalDateTime getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(LocalDateTime startTime) {
+        this.startTime = startTime;
+    }
+
+    // Метод для получения времени окончания задачи
+    public LocalDateTime getEndTime() {
+        return startTime.plus(duration);
     }
 
     @Override

@@ -1,24 +1,71 @@
-import model.Epic;
-import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.*;
 
-class EpicTest {
+import model.Epic;
+import model.Status;
+import model.SubTask;
+import org.junit.jupiter.api.Test;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
+
+public class EpicTest {
+
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+    Duration duration = Duration.ofMinutes(120);
+    LocalDateTime startTime = LocalDateTime.parse("2024-08-18 10:00", formatter);
 
     @Test
-    void shouldInstancesOfTheEpicEqualIfTheirIdIsEqual (){
-        Epic testEpic1 = new Epic(1,"testEpic1", "testEpic1Description");
-        Epic testEpic2 = new Epic(1,"testEpic2", "testEpic2Description");
-        Epic testEpic3 = new Epic(2,"testEpic1", "testEpic1Description");
+    public void testUpdateEpicStatusAllNew() {
+        Epic epic = new Epic(1, "Epic 1", "Description");
+        SubTask subTask1 = new SubTask(2, "SubTask 1", "Description", Status.NEW, duration, startTime, epic);
+        SubTask subTask2 = new SubTask(3, "SubTask 2", "Description", Status.NEW, duration, startTime, epic);
+        epic.getSubTasks().add(subTask1);
+        epic.getSubTasks().add(subTask2);
 
-        assertEquals(testEpic1, testEpic2, "Задачи с одинаковым id должны быть равны.");
-        assertEquals(testEpic1.hashCode(), testEpic2.hashCode(), "Задачи с одинаковым id должны быть " +
-                "иметь одинаковые hash коды.");
-        assertNotEquals(testEpic1, testEpic3, "Задачи с разными id не должны быть равны.");
-        assertNotEquals(testEpic1.hashCode(), testEpic3.hashCode(), "Задачи с одинаковым id должны быть " +
-                "иметь разные hash коды.");
+        epic.updateEpicStatus();
+
+        assertEquals(Status.NEW, epic.getStatus(), "Epic status should be NEW when all subtasks are NEW.");
     }
 
+    @Test
+    public void testUpdateEpicStatusAllDone() {
+        Epic epic = new Epic(1, "Epic 1", "Description");
+        SubTask subTask1 = new SubTask(2, "SubTask 1", "Description", Status.DONE, duration, startTime, epic);
+        SubTask subTask2 = new SubTask(3, "SubTask 2", "Description", Status.DONE, duration, startTime, epic);
+        epic.getSubTasks().add(subTask1);
+        epic.getSubTasks().add(subTask2);
 
+        epic.updateEpicStatus();
 
+        assertEquals(Status.DONE, epic.getStatus(), "Epic status should be DONE when all subtasks are DONE.");
+    }
+
+    @Test
+    public void testUpdateEpicStatusMixedStatuses() {
+        Epic epic = new Epic(1, "Epic 1", "Description");
+        SubTask subTask1 = new SubTask(2, "SubTask 1", "Description", Status.NEW, duration, startTime, epic);
+        SubTask subTask2 = new SubTask(3, "SubTask 2", "Description", Status.DONE, duration, startTime, epic);
+        SubTask subTask3 = new SubTask(4, "SubTask 3", "Description", Status.IN_PROGRESS, duration, startTime, epic);
+        epic.getSubTasks().add(subTask1);
+        epic.getSubTasks().add(subTask2);
+        epic.getSubTasks().add(subTask3);
+
+        epic.updateEpicStatus();
+
+        assertEquals(Status.IN_PROGRESS, epic.getStatus(), "Epic status should be IN_PROGRESS when there are mixed subtasks statuses.");
+    }
+
+    @Test
+    public void testUpdateEpicStatusAllInProgress() {
+        Epic epic = new Epic(1, "Epic 1", "Description");
+        SubTask subTask1 = new SubTask(2, "SubTask 1", "Description", Status.IN_PROGRESS, duration, startTime, epic);
+        SubTask subTask2 = new SubTask(3, "SubTask 2", "Description", Status.IN_PROGRESS, duration, startTime, epic);
+        epic.getSubTasks().add(subTask1);
+        epic.getSubTasks().add(subTask2);
+
+        epic.updateEpicStatus();
+
+        assertEquals(Status.IN_PROGRESS, epic.getStatus(), "Epic status should be IN_PROGRESS when all subtasks are IN_PROGRESS.");
+    }
 }

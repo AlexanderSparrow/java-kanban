@@ -7,33 +7,157 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
+import java.util.TreeSet;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class FileBackedTaskService extends InMemoryTaskService {
     private final File file;
+    private final TreeSet<Task> prioritizedTasks;
 
     public FileBackedTaskService(File file) {
         this.file = file;
+        this.prioritizedTasks = new TreeSet<>(new TaskStartTimeComparator());
     }
 
+    private boolean isTimeOverlap(Task newTask, Task existingTask) {
+        LocalDateTime newTaskStart = newTask.getStartTime();
+        LocalDateTime newTaskEnd = newTask.getEndTime();
+        LocalDateTime existingTaskStart = existingTask.getStartTime();
+        LocalDateTime existingTaskEnd = existingTask.getEndTime();
+
+        if (newTaskStart == null || newTaskEnd == null || existingTaskStart == null || existingTaskEnd == null) {
+            return false;
+        }
+
+        // Проверяем, пересекаются ли временные интервалы
+        return !(newTaskEnd.isBefore(existingTaskStart) || newTaskStart.isAfter(existingTaskEnd));
+    }
+    private boolean hasTimeOverlap(Task newTask) {
+        return prioritizedTasks.stream()
+                .anyMatch(existingTask -> isTimeOverlap(newTask, existingTask));
+    }
+
+    // Метод для получения списка задач в порядке приоритета
+    public TreeSet<Task> getPrioritizedTasks() {
+        return new TreeSet<>(prioritizedTasks); // Возвращаем копию TreeSet
+    }
+
+    // Метод для сохранения данных в файл
     private void save() {
         try (FileWriter writer = new FileWriter(file)) {
-            writer.write("id,type,name,status,description,epic\n");
-            for (Task task : getTasks()) {
-                writer.write(CsvTaskParser.toStringCSV(task) + "\n");
-            }
-            for (Epic epic : getEpics()) {
-                writer.write(CsvTaskParser.toStringCSV(epic) + "\n");
-                for (SubTask subTask : epic.getSubTasks()) {
-                    writer.write(CsvTaskParser.toStringCSV(subTask) + "\n");
-                }
-            }
+            writer.write("id,type,name,description,status,duration,startTime,endTime,epic\n");
+
+            getTasks().stream()
+                    .map(CsvTaskParser::toStringCSV)
+                    .forEach(csv -> {
+                        try {
+                            writer.write(csv + "\n");
+                        } catch (IOException e) {
+                            throw new ManagerSaveException("Ошибка при записи задачи в файл.", e);
+                        }
+                    });
+
+            getEpics().stream()
+                    .map(CsvTaskParser::toStringCSV)
+                    .forEach(csv -> {
+                        try {
+                            writer.write(csv + "\n");
+                        } catch (IOException e) {
+                            throw new ManagerSaveException("Ошибка при записи эпика в файл.", e);
+                        }
+                    });
+
+            getEpics().stream()
+                    .flatMap(epic -> epic.getSubTasks().stream())
+                    .map(CsvTaskParser::toStringCSV)
+                    .forEach(csv -> {
+                        try {
+                            writer.write(csv + "\n");
+                        } catch (IOException e) {
+                            throw new ManagerSaveException("Ошибка при записи подзадачи в файл.", e);
+                        }
+                    });
+
         } catch (IOException e) {
             throw new ManagerSaveException("Ошибка при записи задачи в файл.", e);
         }
     }
 
+//    private void save() {
+//        try (FileWriter writer = new FileWriter(file)) {
+//            writer.write("id,type,name,description,status,duration,startTime,endTime,epic\n");
+//            for (Task task : getTasks()) {
+//                writer.write(CsvTaskParser.toStringCSV(task) + "\n");
+//            }
+//            for (Epic epic : getEpics()) {
+//                writer.write(CsvTaskParser.toStringCSV(epic) + "\n");
+//                for (SubTask subTask : epic.getSubTasks()) {
+//                    writer.write(CsvTaskParser.toStringCSV(subTask) + "\n");
+//                }
+//            }
+//        } catch (IOException e) {
+//            throw new ManagerSaveException("Ошибка при записи задачи в файл.", e);
+//        }
+//    }
+
+    // Метод для загрузки данных из файла
+
     public static FileBackedTaskService loadFromFile(File file) {
+        FileBackedTaskService fileBackedTaskService = new FileBackedTaskService(file);
+        TreeSet<Task> prioritizedTasks = new TreeSet<>(new TaskStartTimeComparator());
+        AtomicInteger currentMaxId = new AtomicInteger();
+
+        try {
+            if (!file.exists()) {
+                return fileBackedTaskService;
+            }
+
+            List<String> lines = Files.readAllLines(file.toPath());
+            lines.stream().skip(1).forEach(line -> {
+                String[] fields = line.split(",");
+                int id = Integer.parseInt(fields[0]);
+                TaskType type = TaskType.valueOf(fields[1]);
+                currentMaxId.set(Math.max(currentMaxId.get(), id));
+
+                switch (type) {
+                    case TASK -> {
+                        Task task = CsvTaskParser.fromCsvString(line);
+                        assert task != null;
+                        fileBackedTaskService.tasks.put(task.getId(), task);
+                        prioritizedTasks.add(task);
+                    }
+                    case EPIC -> {
+                        Epic epic = (Epic) CsvTaskParser.fromCsvString(line);
+                        assert epic != null;
+                        fileBackedTaskService.epics.put(epic.getId(), epic);
+                        prioritizedTasks.add(epic);
+                    }
+                    case SUBTASK -> {
+                        int epicId = Integer.parseInt(fields[8]);
+                        Epic epic1 = fileBackedTaskService.getEpicById(epicId);
+                        if (epic1 == null) {
+                            System.err.println("Epic with ID " + epicId + " not found for SubTask.");
+                        } else {
+                            SubTask subTask = CsvTaskParser.fromCsvString(line, epic1);
+                            fileBackedTaskService.subTasks.put(subTask.getId(), subTask);
+                            epic1.getSubTasks().add(subTask);
+                            prioritizedTasks.add(subTask);
+                        }
+                    }
+                }
+            });
+
+            fileBackedTaskService.counter = currentMaxId.get();
+
+        } catch (IOException e) {
+            throw new ManagerSaveException("Ошибка при загрузке задач из файла.", e);
+        }
+        return fileBackedTaskService;
+    }
+    /*public static FileBackedTaskService loadFromFile(File file) {
         FileBackedTaskService fileBackedTaskService = new FileBackedTaskService(file);
         int currentMaxId = 0; // Локальная переменная для хранения максимального ID
 
@@ -50,22 +174,30 @@ public class FileBackedTaskService extends InMemoryTaskService {
                 currentMaxId = Math.max(currentMaxId, id);  // Обновляем максимальный ID
 
                 switch (type) {
-                    case TASK:
+                    case TASK -> {
                         Task task = CsvTaskParser.fromCsvString(line);
+                        assert task != null;
                         fileBackedTaskService.tasks.put(task.getId(), task);
-                        break;
-                    case EPIC:
+                        fileBackedTaskService.prioritizedTasks.add(task);
+                    }
+                    case EPIC -> {
                         Epic epic = (Epic) CsvTaskParser.fromCsvString(line);
+                        assert epic != null;
                         fileBackedTaskService.epics.put(epic.getId(), epic);
-                        break;
-                    case SUBTASK:
-                        int epicId = Integer.parseInt(fields[5]);
-                        Epic epic1 = fileBackedTaskService.getEpicById(epicId);
-                        System.err.println("Epic with ID " + epicId + " not found for SubTask.");
-                        SubTask subTask = CsvTaskParser.fromCsvString(line, epic1);
-                        fileBackedTaskService.subTasks.put(subTask.getId(),subTask);
+                        fileBackedTaskService.prioritizedTasks.add(epic);
+                    }
+                    case SUBTASK -> {
+                        int epicId = Integer.parseInt(fields[8]);
+                        Epic epic = fileBackedTaskService.getEpicById(epicId);
+                        if (epic == null) {
+                            System.err.println("Epic with ID " + epicId + " not found for SubTask.");
+                            continue;
+                        }
+                        SubTask subTask = CsvTaskParser.fromCsvString(line, epic);
+                        fileBackedTaskService.subTasks.put(subTask.getId(), subTask);
                         subTask.getEpic().getSubTasks().add(subTask);
-                        break;
+                        fileBackedTaskService.prioritizedTasks.add(subTask);
+                    }
                 }
             }
             fileBackedTaskService.counter = currentMaxId; // Присваиваем максимальный ID счетчику
@@ -75,83 +207,111 @@ public class FileBackedTaskService extends InMemoryTaskService {
         }
         return fileBackedTaskService;
     }
-
-    public int getCounter() {
-        return counter;
-    }
+*/
     @Override
     public void addTask(Task task) {
+        if (hasTimeOverlap(task)) {
+            throw new IllegalArgumentException("Задача пересекается по времени с другой задачей.");
+        }
         super.addTask(task);
+        prioritizedTasks.add(task);
         save();
     }
 
     @Override
     public void addSubTask(SubTask subTask) {
+        if (hasTimeOverlap(subTask)) {
+            throw new IllegalArgumentException("Подзадача пересекается по времени с другой задачей или подзадачей.");
+        }
         super.addSubTask(subTask);
+        prioritizedTasks.add(subTask);
         save();
     }
 
     @Override
     public void addEpic(Epic epic) {
+        // Эпики обычно не имеют времени выполнения, поэтому проверка не требуется
         super.addEpic(epic);
+        prioritizedTasks.add(epic);
         save();
     }
 
     @Override
     public void removeTask(int id) {
+        Task task = getTaskById(id);
+        prioritizedTasks.remove(task);
         super.removeTask(id);
         save();
     }
 
     @Override
     public void removeSubTask(int id) {
+        SubTask subTask = getSubTaskById(id);
+        prioritizedTasks.remove(subTask);
         super.removeSubTask(id);
         save();
     }
 
     @Override
     public void removeEpic(int id) {
+        Epic epic = getEpicById(id);
+        prioritizedTasks.remove(epic);
         super.removeEpic(id);
         save();
     }
 
     @Override
     public void updateTask(Task task) {
+        if (hasTimeOverlap(task)) {
+            throw new IllegalArgumentException("Задача пересекается по времени с другой задачей.");
+        }
+        prioritizedTasks.remove(getTaskById(task.getId())); // Удаляем старую версию задачи
         super.updateTask(task);
+        prioritizedTasks.add(task); // Добавляем обновленную версию задачи
         save();
     }
 
     @Override
     public void updateSubTask(SubTask subTask) {
+        if (hasTimeOverlap(subTask)) {
+            throw new IllegalArgumentException("Подзадача пересекается по времени с другой задачей или подзадачей.");
+        }
+        prioritizedTasks.remove(getSubTaskById(subTask.getId())); // Удаляем старую версию подзадачи
         super.updateSubTask(subTask);
+        prioritizedTasks.add(subTask); // Добавляем обновленную версию подзадачи
         save();
     }
 
     @Override
     public void updateEpic(Epic epic) {
+        prioritizedTasks.remove(getEpicById(epic.getId())); // Удаляем старую версию эпика
         super.updateEpic(epic);
+        prioritizedTasks.add(epic); // Добавляем обновленную версию эпика
         save();
     }
 
     @Override
     public void removeAllTasks() {
         super.removeAllTasks();
+        prioritizedTasks.clear();
         save();
     }
 
     @Override
     public void removeAllSubTasks() {
         super.removeAllSubTasks();
+        prioritizedTasks.removeIf(task -> task instanceof SubTask);
         save();
     }
 
     @Override
     public void removeAllEpics() {
         super.removeAllEpics();
+        prioritizedTasks.clear();
         save();
     }
 
-    public static void main(String[] args) {
+    /*public static void main(String[] args) {
         File file = new File("tasks.csv");
 
         // 1. Создадим несколько задач, эпиков и подзадач
@@ -203,5 +363,20 @@ public class FileBackedTaskService extends InMemoryTaskService {
 
         // Выводим результат успешного прохождения сценария
         System.out.println("Все задачи, эпики и подзадачи успешно восстановлены.");
+    }*/
+
+    private static class TaskStartTimeComparator implements Comparator<Task> {
+        @Override
+        public int compare(Task t1, Task t2) {
+            LocalDateTime t1Start = t1.getStartTime() != null ? t1.getStartTime() : LocalDateTime.MIN;
+            LocalDateTime t2Start = t2.getStartTime() != null ? t2.getStartTime() : LocalDateTime.MIN;
+
+            int result = t1Start.compareTo(t2Start);
+            // Если startTime совпадают, сравниваем по ID, чтобы избежать равенства в TreeSet
+            if (result == 0) {
+                result = Integer.compare(t1.getId(), t2.getId());
+            }
+            return result;
+        }
     }
 }
