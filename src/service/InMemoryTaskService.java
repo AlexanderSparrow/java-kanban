@@ -7,10 +7,10 @@ import model.Task;
 import java.util.*;
 
 public class InMemoryTaskService implements TaskService {
-    private final Map<Integer, Task> tasks = new HashMap<>();
-    private final Map<Integer, SubTask> subTasks = new HashMap<>();
-    private final Map<Integer, Epic> epics = new HashMap<>();
-    private int counter = 0;
+    protected final Map<Integer, Task> tasks = new HashMap<>();
+    protected final Map<Integer, SubTask> subTasks = new HashMap<>();
+    protected final Map<Integer, Epic> epics = new HashMap<>();
+    protected int counter = 0;
 
     private final HistoryService historyService = Services.getDefaultHistory();
 
@@ -22,6 +22,7 @@ public class InMemoryTaskService implements TaskService {
     private int getNextCounter() {
         return ++counter;
     }
+
     //Получение всех задач
     @Override
     public List<Task> getTasks() {

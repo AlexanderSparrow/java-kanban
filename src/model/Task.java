@@ -56,18 +56,9 @@ public class Task {
     public void setStatus(Status status) {
         this.status = status;
     }
+
     public void setId(int id) {
         this.id = id;
-    }
-
-    @Override
-    public String toString() {
-        return "Task{" +
-                "taskId=" + id +
-                ", taskName='" + name + '\'' +
-                ", taskDescription='" + description + '\'' +
-                ", taskStatus=" + status +
-                '}';
     }
 
     @Override
@@ -83,6 +74,14 @@ public class Task {
         return Objects.hashCode(id);
     }
 
-
-
+    @Override
+    public String toString() {
+        return "Task{" +
+                "taskId=" + id +
+                ", taskName='" + name + '\'' +
+                ", taskDescription='" + description + '\'' +
+                ", taskStatus=" + status +
+                '}';
+    }
 }
+

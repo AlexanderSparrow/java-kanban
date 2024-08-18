@@ -1,6 +1,6 @@
 package model;
 
-public class SubTask extends Task{
+public class SubTask extends Task {
     private final Epic epic;
 
     public SubTask(int id, String name, String description, Status status, Epic epic) {
@@ -11,5 +11,8 @@ public class SubTask extends Task{
     public Epic getEpic() {
         return epic;
     }
-}
 
+    public int getEpicId() {
+        return epic.getId();
+    }
+}
