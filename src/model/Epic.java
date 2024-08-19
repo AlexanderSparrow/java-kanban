@@ -1,7 +1,6 @@
 package model;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.time.Duration;
@@ -9,54 +8,10 @@ import java.time.LocalDateTime;
 
 public class Epic extends Task {
     private final Set<SubTask> subTasks;
-    private Duration duration;
-    private LocalDateTime startTime;
-    private LocalDateTime endTime;
-
-    public Epic(int id, String name, String description, Duration duration, LocalDateTime startTime, LocalDateTime endTime) {
-        super(id, name, description);
-        this.subTasks = new HashSet<>();
-        this.startTime = null;
-        this.endTime = null;
-        this.duration = Duration.ZERO;
-        //updateEpicStatus();
-        calculateFields();
-    }
 
     public Epic(int id, String name, String description) {
         super(id, name, description);
         this.subTasks = new HashSet<>();
-        this.startTime = null;
-        this.endTime = null;
-        this.duration = Duration.ZERO;
-        //updateEpicStatus();
-        calculateFields();
-    }
-
-
-    public void calculateFields() {
-        if (subTasks == null || subTasks.isEmpty()) {
-            duration = Duration.ZERO;
-            startTime = null;
-            endTime = null;
-            return;
-        }
-
-        this.duration = subTasks.stream()
-                .map(SubTask::getDuration)
-                .reduce(Duration.ZERO, Duration::plus);
-
-        this.startTime = subTasks.stream()
-                .map(SubTask::getStartTime)
-                .filter(Objects::nonNull)
-                .min(LocalDateTime::compareTo)
-                .orElse(null);
-
-        this.endTime = subTasks.stream()
-                .map(SubTask::getEndTime)
-                .filter(Objects::nonNull)
-                .max(LocalDateTime::compareTo)
-                .orElse(null);
     }
 
     public Set<SubTask> getSubTasks() {
@@ -65,17 +20,39 @@ public class Epic extends Task {
 
     @Override
     public Duration getDuration() {
-        return duration;
+        // Пересчитываем duration на основе подзадач
+        if (subTasks.isEmpty()) {
+            return Duration.ZERO;
+        }
+        return subTasks.stream()
+                .map(SubTask::getDuration)
+                .reduce(Duration.ZERO, Duration::plus);
     }
 
     @Override
     public LocalDateTime getStartTime() {
-        return startTime;
+        // Пересчитываем startTime на основе подзадач
+        if (subTasks.isEmpty()) {
+            return null;
+        }
+        return subTasks.stream()
+                .map(SubTask::getStartTime)
+                .filter(Objects::nonNull)
+                .min(LocalDateTime::compareTo)
+                .orElse(null);
     }
 
     @Override
     public LocalDateTime getEndTime() {
-        return endTime;
+        // Пересчитываем endTime на основе подзадач
+        if (subTasks.isEmpty()) {
+            return null;
+        }
+        return subTasks.stream()
+                .map(SubTask::getEndTime)
+                .filter(Objects::nonNull)
+                .max(LocalDateTime::compareTo)
+                .orElse(null);
     }
 
     public void updateEpicStatus() {
@@ -99,4 +76,22 @@ public class Epic extends Task {
         }
     }
 
+    public void calculateFields() {
+        if (subTasks == null || subTasks.isEmpty()) {
+            this.setDuration(Duration.ZERO);
+            this.setStartTime(null);
+            //subTasks = null;
+            return;
+        }
+
+        this.setDuration(subTasks.stream()
+                .map(SubTask::getDuration)
+                .reduce(Duration.ZERO, Duration::plus));
+
+        this.setStartTime(subTasks.stream()
+                .map(SubTask::getStartTime)
+                .filter(Objects::nonNull)
+                .min(LocalDateTime::compareTo)
+                .orElse(null));
+    }
 }

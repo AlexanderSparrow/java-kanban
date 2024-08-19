@@ -35,6 +35,14 @@ public class Task {
         this.status = Status.NEW;
     }
 
+    public Task(String name, String description, Status status, Duration duration, LocalDateTime startTime) {
+        this.name = name;
+        this.description = description;
+        this.status = status;
+        this.duration = duration;
+        this.startTime = startTime;
+    }
+
     public int getId() {
         return id;
     }
@@ -82,6 +90,9 @@ public class Task {
     public void setStartTime(LocalDateTime startTime) {
         this.startTime = startTime;
     }
+    public void setEndTime(LocalDateTime startTime) {
+        this.startTime = startTime;
+    }
 
     // Метод для получения времени окончания задачи
     public LocalDateTime getEndTime() {
@@ -104,10 +115,12 @@ public class Task {
     @Override
     public String toString() {
         return "Task{" +
-                "taskId=" + id +
-                ", taskName='" + name + '\'' +
-                ", taskDescription='" + description + '\'' +
-                ", taskStatus=" + status +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", status=" + status +
+                ", duration=" + duration +
+                ", startTime=" + startTime +
                 '}';
     }
 }

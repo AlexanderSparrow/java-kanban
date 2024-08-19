@@ -6,7 +6,6 @@ import model.Task;
 
 import java.util.List;
 import java.util.Set;
-import java.util.TreeSet;
 
 public interface TaskService {
 
@@ -56,4 +55,6 @@ public interface TaskService {
     void removeAllSubTasks();
 
     void removeAllEpics();
+
+    List<Task> getPrioritizedTasks();
 }

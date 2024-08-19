@@ -4,22 +4,17 @@ import model.SubTask;
 import model.Task;
 import service.FileBackedTaskService;
 import service.InMemoryTaskService;
-import service.Services;
-
 import java.io.File;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Set;
 
 public class Main {
 
     public static void main(String[] args) {
-        //InMemoryTaskService inMemoryTaskService = Services.getDefault(); // Создание менеджера задач
         File file = new File("./data/tasks.csv");
         FileBackedTaskService fileBackedTaskService = FileBackedTaskService.loadFromFile(file);// Создание менеджера задач
-        //FileBackedTaskService.loadFromFile(file);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
         Duration duration = Duration.ofMinutes(5);
         LocalDateTime startTime = LocalDateTime.parse("2024-08-18 10:00", formatter);
@@ -37,6 +32,11 @@ public class Main {
         fileBackedTaskService.addSubTask(new SubTask(444, "second subtask",
                 "test code of final task of 4 sprint", Status.NEW, duration, startTime2, getEpicByName("epic1",
                 fileBackedTaskService)));
+
+       System.out.println("Prioritized Tasks:");
+        for (Task task : fileBackedTaskService.getPrioritizedTasks()) {
+            System.out.println(task.toString());
+        }
     }
 
     private static void removeAllSubTasks(InMemoryTaskService inMemoryTaskService) {
