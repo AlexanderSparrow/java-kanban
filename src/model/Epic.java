@@ -103,4 +103,9 @@ public class Epic extends Task {
                 .min(LocalDateTime::compareTo)
                 .orElse(null));
     }
+
+    public void setEndTime(LocalDateTime endTime) {
+        this.startTime = endTime;
+    }
 }
+

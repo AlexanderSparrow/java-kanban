@@ -90,9 +90,6 @@ public class Task {
     public void setStartTime(LocalDateTime startTime) {
         this.startTime = startTime;
     }
-    public void setEndTime(LocalDateTime startTime) {
-        this.startTime = startTime;
-    }
 
     // Метод для получения времени окончания задачи
     public LocalDateTime getEndTime() {
