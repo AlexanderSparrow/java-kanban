@@ -4,13 +4,13 @@ import exceptions.ManagerSaveException;
 import model.Epic;
 import model.SubTask;
 import model.Task;
-
+import model.TaskType;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class FileBackedTaskService extends InMemoryTaskService {
 
@@ -48,8 +48,7 @@ public class FileBackedTaskService extends InMemoryTaskService {
                     });
 
             // Наконец, сохраняем все подзадачи
-            getEpics().stream()
-                    .flatMap(epic -> epic.getSubTasks().stream())
+            getSubTasks().stream()
                     .map(CsvTaskParser::toStringCSV)
                     .forEach(csv -> {
                         try {
@@ -63,7 +62,6 @@ public class FileBackedTaskService extends InMemoryTaskService {
             throw new ManagerSaveException("Ошибка при записи задачи в файл.", e);
         }
     }
-
 
     private static void putHeader(FileWriter writer) throws IOException {
         writer.write("id,type,name,description,status,duration,startTime,endTime,epic\n");
@@ -109,50 +107,51 @@ public class FileBackedTaskService extends InMemoryTaskService {
 
     // Метод для загрузки данных из файла
     public static FileBackedTaskService loadFromFile(File file) {
-        if (!file.exists()) {
-            try {
-                file.getParentFile().mkdirs(); // Создаем директорию, если она не существует
-                file.createNewFile(); // Создаем файл
-            } catch (IOException e) {
-                throw new RuntimeException("Ошибка при создании файла", e);
-            }
-        }
-
-        FileBackedTaskService service = new FileBackedTaskService(file);
+        FileBackedTaskService fileBackedTaskService = new FileBackedTaskService(file);
+        AtomicInteger currentMaxId = new AtomicInteger();
 
         try {
-            List<String> lines = Files.readAllLines(Paths.get(file.toURI()));
-
-            // Пропускаем первую строку, если это заголовок
-            if (!lines.isEmpty() && lines.getFirst().contains("id")) {
-                lines.removeFirst();
+            if (!file.exists()) {
+                return fileBackedTaskService;
             }
 
-            for (String line : lines) {
-                if (line.isBlank()) {
-                    continue;
-                }
-                Task task = CsvTaskParser.fromCsvString(line);
+            List<String> lines = Files.readAllLines(file.toPath());
+            lines.stream().skip(1).forEach(line -> {
+                String[] fields = line.split(",");
+                int id = Integer.parseInt(fields[0]);
+                TaskType type = TaskType.valueOf(fields[1]);
+                currentMaxId.set(Math.max(currentMaxId.get(), id));
 
-                try {
-                    if (task instanceof SubTask subTask) {
-                        Epic epic = service.getEpicById(subTask.getEpicId());
-                        task = CsvTaskParser.fromCsvString(line, epic);
-                        service.addSubTask(subTask);
-                    } else if (task instanceof Epic epic) {
-                        service.addEpic(epic);
-                    } else if (task instanceof Task) {
-                        service.addTask(task);
+                switch (type) {
+                    case TASK -> {
+                        Task task = CsvTaskParser.fromCsvString(line);
+                        assert task != null;
+                        fileBackedTaskService.tasks.put(task.getId(), task);
                     }
-                } catch (IllegalArgumentException e) {
-                    System.out.println("Ошибка при добавлении задачи: " + e.getMessage());
+                    case EPIC -> {
+                        Epic epic = (Epic) CsvTaskParser.fromCsvString(line);
+                        assert epic != null;
+                        fileBackedTaskService.epics.put(epic.getId(), epic);
+                    }
+                    case SUBTASK -> {
+                        int epicId = Integer.parseInt(fields[8]);
+                        Epic epic = fileBackedTaskService.epics.get(epicId);
+                        if (epic == null) {
+                            System.err.println("Epic with ID " + epicId + " not found for SubTask.");
+                        } else {
+                            SubTask subTask = CsvTaskParser.fromCsvString(line, epic);
+                            fileBackedTaskService.subTasks.put(subTask.getId(), subTask);
+                            epic.getSubTasks().add(subTask);
+                        }
+                    }
                 }
-            }
+            });
+
+            fileBackedTaskService.counter = currentMaxId.get();
+
         } catch (IOException e) {
-            throw new RuntimeException("Ошибка загрузки данных", e);
+            throw new ManagerSaveException("Ошибка при загрузке задач из файла.", e);
         }
-
-        return service;
+        return fileBackedTaskService;
     }
-
 }

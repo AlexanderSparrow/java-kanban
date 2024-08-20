@@ -8,10 +8,19 @@ import java.time.LocalDateTime;
 
 public class Epic extends Task {
     private final Set<SubTask> subTasks;
+    private LocalDateTime endTime;
 
     public Epic(int id, String name, String description) {
         super(id, name, description);
         this.subTasks = new HashSet<>();
+    }
+
+    public Epic(int id, String name, String description, Duration duration, LocalDateTime startTime, LocalDateTime endTime) {
+        super(id, name, description);
+        this.subTasks = new HashSet<>();
+        this.setStartTime(null);
+        this.endTime = null;
+        this.setDuration(Duration.ZERO);
     }
 
     public Set<SubTask> getSubTasks() {
@@ -52,7 +61,7 @@ public class Epic extends Task {
                 .map(SubTask::getEndTime)
                 .filter(Objects::nonNull)
                 .max(LocalDateTime::compareTo)
-                .orElse(null);
+                .orElse(endTime);
     }
 
     public void updateEpicStatus() {
@@ -80,7 +89,7 @@ public class Epic extends Task {
         if (subTasks == null || subTasks.isEmpty()) {
             this.setDuration(Duration.ZERO);
             this.setStartTime(null);
-            //subTasks = null;
+            this.setEndTime(null);
             return;
         }
 

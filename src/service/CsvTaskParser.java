@@ -66,12 +66,7 @@ public class CsvTaskParser {
             case TASK:
                 return new Task(id, name, description, status, duration, startTime);
             case EPIC:
-                Epic epic = new Epic(id, name, description);
-                // Восстанавливаем duration, startTime и endTime
-                epic.setDuration(duration);
-                epic.setStartTime(startTime);
-                epic.setEndTime(endTime);
-                return epic;
+                return new Epic(id, name, description, duration, startTime, endTime);
             case SUBTASK:
                 if (fields.length < 8) {
                     throw new IllegalArgumentException("Недостаточно полей в CSV строке для SubTask: " + value);

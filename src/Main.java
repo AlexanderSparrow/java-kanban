@@ -16,21 +16,21 @@ public class Main {
         File file = new File("./data/tasks.csv");
         FileBackedTaskService fileBackedTaskService = FileBackedTaskService.loadFromFile(file);// Создание менеджера задач
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-        Duration duration = Duration.ofMinutes(5);
-        LocalDateTime startTime = LocalDateTime.parse("2024-08-18 10:00", formatter);
-        LocalDateTime startTime2 = LocalDateTime.parse("2024-08-18 10:10", formatter);
+        Duration duration = Duration.ofMinutes(4);
 
         System.out.println("Добавляем задачи...");// добавление задач
         fileBackedTaskService.addTask(new Task(0, "first task",
-                "write code of final task of 4 sprint", Status.IN_PROGRESS, duration, LocalDateTime.now()));
+                "write code of final task of 4 sprint", Status.IN_PROGRESS, duration, LocalDateTime.now().plusHours(1)));
 
         fileBackedTaskService.addEpic(new Epic(124, "epic1", "first epic"));
 
         fileBackedTaskService.addSubTask(new SubTask(444, "first subtask",
-                "write code of final task of 4 sprint", Status.DONE, duration, startTime, getEpicByName("epic1",
+                "write code of final task of 4 sprint", Status.DONE, duration, LocalDateTime.now(),
+                getEpicByName("epic1",
                 fileBackedTaskService)));
         fileBackedTaskService.addSubTask(new SubTask(444, "second subtask",
-                "test code of final task of 4 sprint", Status.NEW, duration, startTime2, getEpicByName("epic1",
+                "test code of final task of 4 sprint", Status.NEW, duration, LocalDateTime.now().plusMinutes(5),
+                getEpicByName("epic1",
                 fileBackedTaskService)));
 
        System.out.println("Prioritized Tasks:");

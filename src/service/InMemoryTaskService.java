@@ -15,7 +15,7 @@ public class InMemoryTaskService implements TaskService {
 
     protected final TreeSet<Task> prioritizedTasks = new TreeSet<>(new TaskStartTimeComparator());
 
-    final HistoryService historyService = Services.getDefaultHistory();
+    final protected HistoryService historyService = Services.getDefaultHistory();
 
     @Override
     public List<Task> getHistory() {
@@ -68,27 +68,22 @@ public class InMemoryTaskService implements TaskService {
 
     private boolean hasTimeOverlap(Task newTask) {
         return prioritizedTasks.stream()
+                .filter(existingTask -> !existingTask.equals(newTask)) // Исключаем саму задачу
                 .anyMatch(existingTask -> isTimeOverlap(newTask, existingTask));
     }
 
     @Override
     public void addTask(Task task) {
-        try {
-            if (hasTimeOverlap(task)) {
-                throw new IllegalArgumentException("Задача пересекается по времени с другой задачей.");
-            }
-
-            int id = getNextCounter();
-            task.setId(id);
-            tasks.put(id, task);
-            prioritizedTasks.add(task);
-
-        } catch (IllegalArgumentException e) {
-            // Логирование ошибки
-            System.err.println("Ошибка добавления задачи: " + e.getMessage());
-            // Проброс исключения дальше, чтобы оно могло быть обработано тестом или другим кодом
-            throw e;
+        if (hasTimeOverlap(task)) {
+            // Логирование ошибки и проброс исключения
+            System.err.println("Ошибка добавления задачи: Задача пересекается по времени с другой задачей.");
+            throw new IllegalArgumentException("Задача пересекается по времени с другой задачей.");
         }
+
+        int id = getNextCounter();
+        task.setId(id);
+        tasks.put(id, task);
+        prioritizedTasks.add(task);
     }
 
     @Override
@@ -200,16 +195,13 @@ public class InMemoryTaskService implements TaskService {
             Epic epic = oldSubTask.getEpic();
             if (epic != null) {
                 epic.getSubTasks().remove(oldSubTask);
-                epic.updateEpicStatus();// Обновляем статус эпика
-                epic.calculateFields();// Обновляем поля эпика
-            }
-            subTasks.put(subTaskId, updatedSubTask);
-            prioritizedTasks.add(updatedSubTask);
-            if (epic != null) {
                 epic.getSubTasks().add(updatedSubTask);
                 epic.updateEpicStatus(); // Обновляем статус эпика
                 epic.calculateFields();// Обновляем поля эпика
             }
+            subTasks.put(subTaskId, updatedSubTask);
+            prioritizedTasks.add(updatedSubTask);
+
         } else {
             throw new IllegalArgumentException("Подзадача с указанным ID не найдена.");
         }
@@ -230,7 +222,7 @@ public class InMemoryTaskService implements TaskService {
     @Override
     public void removeAllTasks() {
         tasks.clear();
-        prioritizedTasks.removeIf(task -> !(task instanceof SubTask || task instanceof Epic)); // Удаляем только задачи
+        prioritizedTasks.removeIf(task -> task instanceof Task); // Удаляем только задачи
     }
 
     @Override
@@ -253,9 +245,12 @@ public class InMemoryTaskService implements TaskService {
             System.out.println("Список подзадач пуст.");
             return;
         }
+        for (Epic epic : epics.values()) {
+            // Удаляем все подзадачи эпика из приоритетного списка
+            prioritizedTasks.removeAll(epic.getSubTasks());
+        }
         subTasks.clear();
         epics.clear();
-        prioritizedTasks.clear();
     }
 
     private static class TaskStartTimeComparator implements Comparator<Task> {
