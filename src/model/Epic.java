@@ -18,9 +18,9 @@ public class Epic extends Task {
     public Epic(int id, String name, String description, Duration duration, LocalDateTime startTime, LocalDateTime endTime) {
         super(id, name, description);
         this.subTasks = new HashSet<>();
-        this.setStartTime(null);
-        this.endTime = null;
-        this.setDuration(Duration.ZERO);
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.duration = duration;
     }
 
     public Set<SubTask> getSubTasks() {
@@ -87,25 +87,34 @@ public class Epic extends Task {
 
     public void calculateFields() {
         if (subTasks == null || subTasks.isEmpty()) {
-            this.setDuration(Duration.ZERO);
-            this.setStartTime(null);
-            this.setEndTime(null);
+            this.duration = Duration.ZERO;
+            this.startTime = null;
+            this.endTime = null;
             return;
         }
 
+        // Суммируем продолжительность всех подзадач
         this.setDuration(subTasks.stream()
                 .map(SubTask::getDuration)
                 .reduce(Duration.ZERO, Duration::plus));
 
+        // Находим минимальное время начала среди всех подзадач
         this.setStartTime(subTasks.stream()
                 .map(SubTask::getStartTime)
                 .filter(Objects::nonNull)
                 .min(LocalDateTime::compareTo)
                 .orElse(null));
+
+        // Находим максимальное время окончания среди всех подзадач
+        this.setEndTime(subTasks.stream()
+                .map(SubTask::getEndTime)
+                .filter(Objects::nonNull)
+                .max(LocalDateTime::compareTo)
+                .orElse(null));
     }
 
     public void setEndTime(LocalDateTime endTime) {
-        this.startTime = endTime;
+        this.endTime = endTime;
     }
 }
 

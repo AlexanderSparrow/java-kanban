@@ -47,11 +47,12 @@ public class FileBackedTaskServiceTest extends TaskServiceTest {
         // Создаем задачи
         Task task1 = new Task(1, "Task 1", "Description 1", Status.NEW, Duration.ofMinutes(4),
                 startTime);
+        Epic epic1 = new Epic(2, "Epic 1", "Description 1");
+        SubTask subTask1 = new SubTask(3, "SubTask 1", "Description 1", Status.NEW, duration, startTime.plusMinutes(10), epic1);
+
         // Добавляем задачи в менеджер
         taskService.addTask(task1);
-        Epic epic1 = new Epic(2, "Epic 1", "Description 1");
         taskService.addEpic(epic1);
-        SubTask subTask1 = new SubTask(3, "SubTask 1", "Description 1", Status.NEW, duration, startTime.plusMinutes(10), epic1);
         taskService.addSubTask(subTask1);
 
         // Загружаем менеджер из файла
@@ -85,6 +86,9 @@ public class FileBackedTaskServiceTest extends TaskServiceTest {
         assertEquals(epic1.getDescription(), loadedEpic1.getDescription(), "Ошибка: Описание Epic не совпадает");
         assertEquals(epic1.getStatus(), loadedEpic1.getStatus(), "Ошибка: Статус Epic не совпадает");
         assertEquals(epic1.getId(), loadedEpic1.getId(), "Ошибка: ID Epic не совпадает");
+        assertEquals(epic1.getDuration(), loadedEpic1.getDuration(), "Ошибка: Продолжительность Epic не совпадает");
+        assertEquals(epic1.getStartTime(), loadedEpic1.getStartTime(), "Ошибка: Время начала Epic не совпадает");
+        assertEquals(epic1.getEndTime(), loadedEpic1.getEndTime(), "Ошибка: Время окончания Epic не совпадает");
 
         // Проверка SubTask
         assertEquals(subTask1.getName(), loadedSubTask1.getName(), "Ошибка: Имя SubTask не совпадает");
@@ -101,14 +105,11 @@ public class FileBackedTaskServiceTest extends TaskServiceTest {
         assertTrue(epicSubTasks.contains(loadedSubTask1), "Ошибка: Подзадача не привязана к эпику корректно");
 
         // Проверка сортировки задач в приоритетном списке
-        List<Task> prioritizedTasks = new ArrayList<>(taskService.getPrioritizedTasks());
+        List<Task> prioritizedTasks = new ArrayList<>(loadedManager.getPrioritizedTasks());
         assertEquals(2, prioritizedTasks.size(), "Ошибка: Количество задач в приоритетном списке не совпадает");
 
         // Проверяем, что задачи отсортированы по времени начала
         assertEquals(loadedTask1, prioritizedTasks.get(0), "Ошибка: Задачи не отсортированы правильно");
         assertEquals(loadedSubTask1, prioritizedTasks.get(1), "Ошибка: Задачи не отсортированы правильно");
-
-
-
     }
 }

@@ -74,7 +74,7 @@ public class CsvTaskParser {
                 int epicId = Integer.parseInt(fields[8]);
                 // Мы не можем создать подзадачу без эпика, поэтому epic должен быть передан извне
                 // Пропустим этот случай, так как он обрабатывается другим методом
-                return null; // или бросьте исключение
+                return null; // или бросаем исключение
             default:
                 throw new IllegalArgumentException("Неверный тип задачи: " + type);
         }

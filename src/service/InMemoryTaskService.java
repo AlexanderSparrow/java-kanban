@@ -15,7 +15,7 @@ public class InMemoryTaskService implements TaskService {
 
     protected final TreeSet<Task> prioritizedTasks = new TreeSet<>(new TaskStartTimeComparator());
 
-    final protected HistoryService historyService = Services.getDefaultHistory();
+    protected final  HistoryService historyService = Services.getDefaultHistory();
 
     @Override
     public List<Task> getHistory() {
@@ -183,7 +183,6 @@ public class InMemoryTaskService implements TaskService {
         prioritizedTasks.add(updatedTask);
     }
 
-    @Override
     public void updateSubTask(SubTask updatedSubTask) {
         if (hasTimeOverlap(updatedSubTask)) {
             throw new IllegalArgumentException("Подзадача пересекается по времени с другой задачей или подзадачей.");
@@ -221,8 +220,8 @@ public class InMemoryTaskService implements TaskService {
     // Удаление всех задач, подзадач, эпиков
     @Override
     public void removeAllTasks() {
+        tasks.values().forEach(prioritizedTasks::remove);
         tasks.clear();
-        prioritizedTasks.removeIf(task -> task instanceof Task); // Удаляем только задачи
     }
 
     @Override

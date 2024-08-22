@@ -10,7 +10,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class FileBackedTaskService extends InMemoryTaskService {
 
@@ -108,7 +107,7 @@ public class FileBackedTaskService extends InMemoryTaskService {
     // Метод для загрузки данных из файла
     public static FileBackedTaskService loadFromFile(File file) {
         FileBackedTaskService fileBackedTaskService = new FileBackedTaskService(file);
-        AtomicInteger currentMaxId = new AtomicInteger();
+        int currentMaxId = 0;
 
         try {
             if (!file.exists()) {
@@ -116,17 +115,22 @@ public class FileBackedTaskService extends InMemoryTaskService {
             }
 
             List<String> lines = Files.readAllLines(file.toPath());
-            lines.stream().skip(1).forEach(line -> {
+            for (String line : lines) {
+                if (line.isBlank() || line.startsWith("id")) {
+                    continue;
+                }
+
                 String[] fields = line.split(",");
                 int id = Integer.parseInt(fields[0]);
                 TaskType type = TaskType.valueOf(fields[1]);
-                currentMaxId.set(Math.max(currentMaxId.get(), id));
+                currentMaxId = Math.max(currentMaxId, id);
 
                 switch (type) {
                     case TASK -> {
                         Task task = CsvTaskParser.fromCsvString(line);
                         assert task != null;
                         fileBackedTaskService.tasks.put(task.getId(), task);
+                        fileBackedTaskService.prioritizedTasks.add(task);
                     }
                     case EPIC -> {
                         Epic epic = (Epic) CsvTaskParser.fromCsvString(line);
@@ -142,14 +146,15 @@ public class FileBackedTaskService extends InMemoryTaskService {
                             SubTask subTask = CsvTaskParser.fromCsvString(line, epic);
                             fileBackedTaskService.subTasks.put(subTask.getId(), subTask);
                             epic.getSubTasks().add(subTask);
+                            fileBackedTaskService.prioritizedTasks.add(subTask);
                         }
                     }
                 }
-            });
+            }
 
-            fileBackedTaskService.counter = currentMaxId.get();
+            fileBackedTaskService.counter = currentMaxId;
 
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new ManagerSaveException("Ошибка при загрузке задач из файла.", e);
         }
         return fileBackedTaskService;

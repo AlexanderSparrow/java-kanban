@@ -27,7 +27,7 @@ public class InMemoryHistoryService implements HistoryService {
     @Override
     public void addTaskToHistory(Task addedTask) {
         if (addedTask == null) {
-            System.out.println("Task is null");
+            System.err.println("Ошибка добавления задачи в историю: Задача не существует.");
             return;
         }
         if (nodeMap.containsKey(addedTask.getId())) {
