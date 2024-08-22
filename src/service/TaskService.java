@@ -55,4 +55,6 @@ public interface TaskService {
     void removeAllSubTasks();
 
     void removeAllEpics();
+
+    List<Task> getPrioritizedTasks();
 }
