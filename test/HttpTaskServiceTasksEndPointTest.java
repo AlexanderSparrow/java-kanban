@@ -21,13 +21,13 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class HttpTaskServiceTasksTest {
+public class HttpTaskServiceTasksEndPointTest {
 
     private final FileBackedTaskService manager;
-    private HttpTaskServer taskServer;
+    private final HttpTaskServer taskServer;
     private final Gson gson;
 
-    public HttpTaskServiceTasksTest() throws IOException {
+    public HttpTaskServiceTasksEndPointTest() throws IOException {
         File file = File.createTempFile("tasks", ".csv");
         file.deleteOnExit();
         this.manager = new FileBackedTaskService(file);

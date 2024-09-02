@@ -5,6 +5,7 @@ import model.Task;
 import service.FileBackedTaskService;
 import service.InMemoryTaskService;
 import service.HttpTaskServer;
+
 import java.io.File;
 import java.io.IOException;
 import java.time.Duration;
@@ -23,7 +24,12 @@ public class Main {
         HttpTaskServer server = new HttpTaskServer(fileBackedTaskService);
         server.start();
 
-      /*  System.out.println("Добавляем задачи...");// добавление задач
+        System.out.println("Prioritized Tasks:");
+        for (Task task : fileBackedTaskService.getPrioritizedTasks()) {
+            System.out.println(task.toString());
+        }
+
+        System.out.println("Добавляем задачи...");// добавление задач
         fileBackedTaskService.addTask(new Task(0, "first task",
                 "write code of final task of 4 sprint", Status.IN_PROGRESS, duration, LocalDateTime.now().plusHours(1)));
 
@@ -32,16 +38,11 @@ public class Main {
         fileBackedTaskService.addSubTask(new SubTask(444, "first subtask",
                 "write code of final task of 4 sprint", Status.DONE, duration, LocalDateTime.now(),
                 getEpicByName("epic1",
-                fileBackedTaskService)));
+                        fileBackedTaskService)));
         fileBackedTaskService.addSubTask(new SubTask(444, "second subtask",
                 "test code of final task of 4 sprint", Status.NEW, duration, LocalDateTime.now().plusMinutes(5),
                 getEpicByName("epic1",
-                fileBackedTaskService)));*/
-
-       System.out.println("Prioritized Tasks:");
-        for (Task task : fileBackedTaskService.getPrioritizedTasks()) {
-            System.out.println(task.toString());
-        }
+                        fileBackedTaskService)));
     }
 
     private static void removeAllSubTasks(InMemoryTaskService inMemoryTaskService) {

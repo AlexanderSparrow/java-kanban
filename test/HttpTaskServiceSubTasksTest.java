@@ -26,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class HttpTaskServiceSubTasksTest {
 
     private final FileBackedTaskService manager;
-    private HttpTaskServer taskServer;
+    private final HttpTaskServer taskServer;
     private final Gson gson;
 
     public HttpTaskServiceSubTasksTest() throws IOException {
@@ -61,7 +61,6 @@ public class HttpTaskServiceSubTasksTest {
     @Test
     public void testAddSubTask() throws IOException, InterruptedException {
         Epic testEpic = new Epic(0, "test", "test", Duration.ofMinutes(5), LocalDateTime.now(), LocalDateTime.now());
-
         String epicJson = gson.toJson(testEpic);
 
         HttpClient client = HttpClient.newHttpClient();
@@ -76,6 +75,7 @@ public class HttpTaskServiceSubTasksTest {
         SubTask subTask = new SubTask(0, "SubTask 2", "Testing SubTask 2",
                 Status.NEW, Duration.ofMinutes(5), LocalDateTime.now(), epicById);
         String subTaskJson = gson.toJson(subTask);
+        //HttpClient client = HttpClient.newHttpClient();
         URI url = URI.create("http://localhost:8080/subtasks");
         HttpRequest subTaskRequest = HttpRequest.newBuilder()
                 .uri(url)

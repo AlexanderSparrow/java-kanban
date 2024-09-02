@@ -34,9 +34,7 @@ public class EpicHandler extends BaseHttpHandler {
     public void handle(HttpExchange exchange) throws IOException {
         try {
             String method = exchange.getRequestMethod();
-            System.out.println(method);//TODO
             String path = exchange.getRequestURI().getPath();
-            System.out.println(path);//TODO
             String[] pathParts = path.split("/");
 
             if ("GET".equals(method)) {
@@ -82,21 +80,39 @@ public class EpicHandler extends BaseHttpHandler {
         }
     }
 
-    private void handlePostRequest(HttpExchange exchange) throws IOException {
+    private int handlePostRequest(HttpExchange exchange) throws IOException {
         String body = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
         Epic epic = gson.fromJson(body, Epic.class);
+
+        // Проверка валидности данных
+        if (epic.getName() == null || epic.getName().isEmpty() || epic.getStatus() == null) {
+            sendText(exchange, "Некорректные данные задачи", 400);
+        }
+
+        int id;
         if (epic.getId() == 0 || taskService.getEpicById(epic.getId()) == null) {
-            taskService.addEpic(epic);
-            sendText(exchange, "Epic created successfully", 201);
+            id = taskService.addEpic(epic);
+            sendText(exchange, Integer.toString(id), 201);
         } else {
-            taskService.updateEpic(epic);
+            id = taskService.updateEpic(epic);
             sendText(exchange, "Epic updated successfully", 200);
         }
+        return id;
     }
 
     private void handleDeleteRequest(HttpExchange exchange, String[] pathParts) throws IOException {
         int id = Integer.parseInt(pathParts[2]);
-        taskService.removeEpic(id);
-        sendText(exchange, "Epic deleted successfully", 200);
+        if (taskService.getEpicById(id) != null) {
+            taskService.removeEpic(id);
+            sendText(exchange, "Epic удален успешно", 200);
+        } else {
+            sendText(exchange, "Задача не найдена", 404);
+        }
+
+    }
+
+    private int extractIdFromPath(String path) {
+        String[] parts = path.split("/");
+        return Integer.parseInt(parts[parts.length - 1]);
     }
 }
