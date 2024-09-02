@@ -8,4 +8,4 @@ public class Services {
     public static HistoryService getDefaultHistory() {
         return new InMemoryHistoryService();
     }
-    }
+}

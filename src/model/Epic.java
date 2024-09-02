@@ -1,5 +1,6 @@
 package model;
 
+import com.google.gson.annotations.Expose;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -7,7 +8,10 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 
 public class Epic extends Task {
+    @Expose
     private final Set<SubTask> subTasks;
+
+    @Expose
     private LocalDateTime endTime;
 
     public Epic(int id, String name, String description) {
@@ -29,7 +33,6 @@ public class Epic extends Task {
 
     @Override
     public Duration getDuration() {
-        // Пересчитываем duration на основе подзадач
         if (subTasks.isEmpty()) {
             return Duration.ZERO;
         }
@@ -40,7 +43,6 @@ public class Epic extends Task {
 
     @Override
     public LocalDateTime getStartTime() {
-        // Пересчитываем startTime на основе подзадач
         if (subTasks.isEmpty()) {
             return null;
         }
@@ -53,7 +55,6 @@ public class Epic extends Task {
 
     @Override
     public LocalDateTime getEndTime() {
-        // Пересчитываем endTime на основе подзадач
         if (subTasks.isEmpty()) {
             return null;
         }
@@ -93,19 +94,16 @@ public class Epic extends Task {
             return;
         }
 
-        // Суммируем продолжительность всех подзадач
         this.setDuration(subTasks.stream()
                 .map(SubTask::getDuration)
                 .reduce(Duration.ZERO, Duration::plus));
 
-        // Находим минимальное время начала среди всех подзадач
         this.setStartTime(subTasks.stream()
                 .map(SubTask::getStartTime)
                 .filter(Objects::nonNull)
                 .min(LocalDateTime::compareTo)
                 .orElse(null));
 
-        // Находим максимальное время окончания среди всех подзадач
         this.setEndTime(subTasks.stream()
                 .map(SubTask::getEndTime)
                 .filter(Objects::nonNull)
@@ -117,4 +115,3 @@ public class Epic extends Task {
         this.endTime = endTime;
     }
 }
-

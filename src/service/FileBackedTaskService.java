@@ -5,6 +5,7 @@ import model.Epic;
 import model.SubTask;
 import model.Task;
 import model.TaskType;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -80,9 +81,11 @@ public class FileBackedTaskService extends InMemoryTaskService {
     }
 
     @Override
-    public void addEpic(Epic epic) {
+    public int addEpic(Epic epic) {
         super.addEpic(epic);
         save();
+        return epic.getId();
+
     }
 
     // Переопределяем методы для обновления задач
@@ -99,9 +102,10 @@ public class FileBackedTaskService extends InMemoryTaskService {
     }
 
     @Override
-    public void updateEpic(Epic epic) {
+    public int updateEpic(Epic epic) {
         super.updateEpic(epic);
         save();
+        return epic.getId();
     }
 
     // Метод для загрузки данных из файла

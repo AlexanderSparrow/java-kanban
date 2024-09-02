@@ -15,7 +15,7 @@ public class InMemoryTaskService implements TaskService {
 
     protected final TreeSet<Task> prioritizedTasks = new TreeSet<>(new TaskStartTimeComparator());
 
-    protected final  HistoryService historyService = Services.getDefaultHistory();
+    protected final HistoryService historyService = Services.getDefaultHistory();
 
     @Override
     public List<Task> getHistory() {
@@ -106,11 +106,12 @@ public class InMemoryTaskService implements TaskService {
     }
 
     @Override
-    public void addEpic(Epic epic) {
+    public int addEpic(Epic epic) {
         int id = getNextCounter();
         epic.setId(id);
         epics.put(epic.getId(), epic);
         // Эпики обычно не имеют времени выполнения, поэтому проверка не требуется
+        return id;
     }
 
     //Получение задач, подзадач, эпиков по ID
@@ -207,13 +208,15 @@ public class InMemoryTaskService implements TaskService {
     }
 
     @Override
-    public void updateEpic(Epic epic) {
+    public int updateEpic(Epic epic) {
         if (epics.containsKey(epic.getId())) {
             final Epic savedEpic = epics.get(epic.getId());
             savedEpic.setName(epic.getName());
             savedEpic.setDescription(epic.getDescription());
+            return savedEpic.getId();
         } else {
             System.out.println("Такого эпика не существует");
+            throw new RuntimeException("Такого эпика не существует");
         }
     }
 

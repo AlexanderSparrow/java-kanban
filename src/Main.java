@@ -4,7 +4,9 @@ import model.SubTask;
 import model.Task;
 import service.FileBackedTaskService;
 import service.InMemoryTaskService;
+import service.HttpTaskServer;
 import java.io.File;
+import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -12,13 +14,16 @@ import java.util.List;
 
 public class Main {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         File file = new File("./data/tasks.csv");
         FileBackedTaskService fileBackedTaskService = FileBackedTaskService.loadFromFile(file);// Создание менеджера задач
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
         Duration duration = Duration.ofMinutes(4);
 
-        System.out.println("Добавляем задачи...");// добавление задач
+        HttpTaskServer server = new HttpTaskServer(fileBackedTaskService);
+        server.start();
+
+      /*  System.out.println("Добавляем задачи...");// добавление задач
         fileBackedTaskService.addTask(new Task(0, "first task",
                 "write code of final task of 4 sprint", Status.IN_PROGRESS, duration, LocalDateTime.now().plusHours(1)));
 
@@ -31,7 +36,7 @@ public class Main {
         fileBackedTaskService.addSubTask(new SubTask(444, "second subtask",
                 "test code of final task of 4 sprint", Status.NEW, duration, LocalDateTime.now().plusMinutes(5),
                 getEpicByName("epic1",
-                fileBackedTaskService)));
+                fileBackedTaskService)));*/
 
        System.out.println("Prioritized Tasks:");
         for (Task task : fileBackedTaskService.getPrioritizedTasks()) {
