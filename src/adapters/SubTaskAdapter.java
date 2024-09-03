@@ -1,4 +1,4 @@
-package service;
+package adapters;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;

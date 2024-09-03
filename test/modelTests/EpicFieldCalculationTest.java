@@ -1,3 +1,5 @@
+package modelTests;
+
 import model.Epic;
 import model.Status;
 import model.SubTask;

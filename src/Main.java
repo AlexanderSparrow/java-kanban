@@ -4,7 +4,7 @@ import model.SubTask;
 import model.Task;
 import service.FileBackedTaskService;
 import service.InMemoryTaskService;
-import service.HttpTaskServer;
+import servers.HttpTaskServer;
 
 import java.io.File;
 import java.io.IOException;

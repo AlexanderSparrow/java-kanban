@@ -1,6 +1,5 @@
 package model;
 
-import com.google.gson.annotations.Expose;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -8,10 +7,8 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 
 public class Epic extends Task {
-    @Expose
     private final Set<SubTask> subTasks;
 
-    @Expose
     private LocalDateTime endTime;
 
     public Epic(int id, String name, String description) {

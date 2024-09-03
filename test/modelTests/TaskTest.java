@@ -1,3 +1,5 @@
+package modelTests;
+
 import model.Task;
 import org.junit.jupiter.api.Test;
 

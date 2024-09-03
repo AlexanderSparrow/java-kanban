@@ -1,3 +1,5 @@
+package modelTests;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 import model.Epic;

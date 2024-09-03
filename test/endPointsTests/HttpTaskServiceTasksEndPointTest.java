@@ -1,8 +1,13 @@
+package endPointsTests;
+
+import adapters.DurationAdapter;
+import adapters.LocalDateTimeAdapter;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import servers.HttpTaskServer;
 import service.*;
 import model.Task;
 import model.Status;
@@ -34,8 +39,6 @@ public class HttpTaskServiceTasksEndPointTest {
         this.taskServer = new HttpTaskServer(manager);
         this.gson = new GsonBuilder()
                 .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
-                .registerTypeAdapter(LocalDate.class, new LocalDateAdapter())
-                .registerTypeAdapter(LocalTime.class, new LocalTimeAdapter())
                 .registerTypeAdapter(Duration.class, new DurationAdapter())
                 .create();
     }
