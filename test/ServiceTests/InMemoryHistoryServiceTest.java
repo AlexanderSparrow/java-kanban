@@ -1,3 +1,5 @@
+package ServiceTests;
+
 import model.Epic;
 import model.Status;
 import model.SubTask;
@@ -6,6 +8,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import service.InMemoryHistoryService;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -17,13 +22,18 @@ public class InMemoryHistoryServiceTest {
     private Epic epic;
     private SubTask subTask;
 
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+    Duration duration = Duration.ofMinutes(120);
+    LocalDateTime startTime = LocalDateTime.parse("2024-08-18 10:00", formatter);
+
     @BeforeEach
     public void setUp() {
         historyService = new InMemoryHistoryService();
         task1 = new Task(1, "Task 1", "Description 1");
         task2 = new Task(2, "Task 2", "Description 2");
         epic = new Epic(3, "Epic 1", "Epic Description");
-        subTask = new SubTask(4, "SubTask 1", "SubTask Description", Status.NEW, epic);
+        subTask = new SubTask(4, "SubTask 1", "SubTask Description", Status.NEW,
+                duration, startTime, epic);
     }
 
     @Test

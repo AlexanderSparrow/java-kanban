@@ -1,3 +1,5 @@
+package ServiceTests;
+
 import org.junit.jupiter.api.Test;
 import service.HistoryService;
 import service.InMemoryHistoryService;

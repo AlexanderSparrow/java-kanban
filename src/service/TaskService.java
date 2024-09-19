@@ -26,7 +26,7 @@ public interface TaskService {
 
     void addSubTask(SubTask subTask);
 
-    void addEpic(Epic epic);
+    int addEpic(Epic epic);
 
     //Получение задач, подзадач, эпиков по ID
     Task getTaskById(int id);
@@ -47,7 +47,7 @@ public interface TaskService {
 
     void updateSubTask(SubTask subTask);
 
-    void updateEpic(Epic epic);
+    int updateEpic(Epic epic);
 
     // Удаление всех задач, подзадач, эпиков
     void removeAllTasks();
@@ -55,4 +55,6 @@ public interface TaskService {
     void removeAllSubTasks();
 
     void removeAllEpics();
+
+    List<Task> getPrioritizedTasks();
 }
